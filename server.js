@@ -9,7 +9,7 @@ server.configure(function() {
 });
 
 server.get('/', function(req, res) {
-	res.send('hiss-teria landing page!');
+	res.sendfile('views/index.html');
 });
 
 server.get('/:gameId', function(req, res) {
