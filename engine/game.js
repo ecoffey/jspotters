@@ -18,14 +18,16 @@ function createNew(id){
 };
 
 function updateGameState() {
-	this.test += "m";
-	console.log(this.test);
+	//this.test += 'm';
+	//console.log(this.test);
+	
+	// TODO
 };
 Game.prototype.updateGameState = updateGameState;
 
-function start(){
-	console.log('game ' + this.id + ' started');
+function start() {
 	this.intervalId = setInterval(updateGameState.bind(this), 250); // need args?
+	console.log('game ' + this.id + ' started, interval id:' + this.intervalId);
 }
 Game.prototype.start = start;
 

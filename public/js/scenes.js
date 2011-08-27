@@ -11,10 +11,10 @@ Crafty.scene("loading", function () {
 
 Crafty.scene("main", function () {
 	Crafty.background("black");
-
+	
+	// Outer walls
     for (var i = 0; i < Snakes.worldWidth; i++) {
         for (var j = 0; j < Snakes.worldHeight; j++) {
-			// Outer walls
             if(i === 0 || i === 24 || j === 0 || j === 20) {
                 Crafty.e('wall')
                 	.attr({ 
@@ -23,8 +23,21 @@ Crafty.scene("main", function () {
 						z:2
 					});
 			}
+			
         }
     }
+
+	// Inner walls
+	for (var i=0; i < Snakes.innerWalls.length; i++) {
+		var coords =  Snakes.innerWalls[i];
+		
+		Crafty.e('wall')
+			.attr({
+				x: coords.x * Snakes.tileSize,
+				y: coords.y * Snakes.tileSize,
+				z: 2
+			});
+	};
 
 	Crafty.e('Player')
 		.attr({ 
@@ -40,9 +53,48 @@ Crafty.scene("main", function () {
 			z: 1
 		}).Snake(Snakes.startingLength, 'left', 'yellow');
 	
-	setInterval(function() {
-		for (var i = Snakes.movers.length - 1; i >= 0; i--){
-			Snakes.movers[i]._drawn = false;
-		};
-	}, 250);
+	Snakes.drawHandle = setInterval(
+		function() {
+			for (var i = Snakes.movers.length - 1; i >= 0; i--){
+				Snakes.movers[i]._drawn = false;
+			};
+		}, 250);
+		
+	// TODO: this will come from the server
+	Snakes.fruitGenHandle = setInterval(
+		function() {
+			if(Crafty.randRange(1, 3) === 1) {
+				var x, y;
+				
+				var conflict = function(coord) {
+					var compCoord,
+						arrays = [Snakes.innerWalls, Snakes.fruit, Snakes.movers];
+					
+					for (var a=0; a < arrays.length; a++) {
+						for (var i=0; i < arrays[a].length; i++) {
+							compCoord = arrays[a][i];
+
+							if(coord.x === compCoord.x && coord.y === compCoord.y)
+								return true;
+						};
+					};
+					
+					return false;
+				};
+				
+				do {
+					x = Crafty.randRange(1, Snakes.worldWidth - 2);
+					y = Crafty.randRange(1, Snakes.worldHeight - 2);
+				} while(conflict({ x:x, y:y}));
+				
+				Snakes.fruit.push(
+					Crafty.e('fruit')
+						.attr({
+							x: x * Snakes.tileSize,
+							y: y * Snakes.tileSize,
+							z: 2
+						})
+				);
+			}
+		}, 1000);
 });
