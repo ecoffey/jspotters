@@ -11,6 +11,23 @@ window.onload = function () {
 		}
 	});
 	
+	Crafty.c('fruit', {
+		init: function() {
+			this.addComponent('2D, Canvas, Color, Collision');
+			
+			this.w = Snakes.tileSize;
+			this.h = Snakes.tileSize;
+			
+			this.color('red')
+				.collision();
+			
+			this.onHit('Snake', function(){
+				// TODO: Remove from fruit array
+				this.destroy();
+			});
+		}
+	});
+	
 	Crafty.c('SnakeSegment', {
 		init: function() {
 			this.addComponent('2D, Canvas, Color, solid, Collision');
@@ -100,6 +117,19 @@ window.onload = function () {
 						}
 						
 						this.destroy();
+						
+						return;
+					}
+					
+					if(this.hit('fruit')) {
+						this._segments.push(
+							Crafty.e('SnakeSegment')
+								.SnakeSegment(color)
+								.attr({
+									x: this.x,
+									y: this.y,
+									z: this.z
+								}));
 					}
 				});
 			
@@ -133,8 +163,8 @@ window.onload = function () {
 		}
 	});
 	
-	// These would come from the server
-	Crafty.innerWalls = [
+	// TODO: These would come from the server
+	Snakes.innerWalls = [
 		{ x: 5, y: 5},
 		{ x: 5, y: 6},
 		{ x: 5, y: 7},
