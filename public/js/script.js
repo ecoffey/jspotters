@@ -1,21 +1,50 @@
 window.onload = function () {
 	var sock = io.connect(),
+		snakes = [],
 		playerNumber;
 
-	sock.on('connect', function() {
-		console.log('oh hai');
-	});
-	
+	// Server event handlers
 	sock.on('joined', function(data) {
+		var startingLocation = data.startingLocation;
+		
 		playerNumber = data.playerNumber;
 		
-		console.log('player', playerNumber);
+		Snakes.innerWalls = data.innerWalls;
+		
+		Crafty.scene('main');
+		
+		snakes.push(Crafty.e('Player')
+			.attr({
+				x: startingLocation.x * Snakes.tileSize,
+				y: startingLocation.y * Snakes.tileSize,
+				z: 1,
+				playerNumber: playerNumber
+			})
+			.Player(Snakes.startingLength, 'green', { 38: 'up', 40: 'down', 39: 'right', 37: 'left'}));
 	});
 	
 	sock.on('gameState', function(gameState) {
-		console.log(gameState);
+		for (var i=0; i < gameState.snakes.length; i++) {
+			// x, y, playerNumber
+			var state = gameState.snakes[i];
+			
+			for (var j=0; j < snakes.length; j++) {
+				var snake = snakes[j];
+				
+				if(state.playerNumber === snake.playerNumber) {
+					snake.newLocation = {
+						x: state.x * Snakes.tileSize,
+						y: state.y * Snakes.tileSize
+					}
+										
+					break;
+				}
+			};
+		};
 	});
 	
+	
+	// Crafty Components
 	Crafty.c('wall', {
 		init: function() {
 			this.addComponent('2D, Canvas, Color, Collision, solid');
@@ -38,7 +67,7 @@ window.onload = function () {
 							.attr({ 
 								x: i * Snakes.tileSize, 
 								y: j * Snakes.tileSize, 
-								z:2
+								z: 2
 							});
 					}
 				}
@@ -102,15 +131,11 @@ window.onload = function () {
 			this.w = Snakes.tileSize;
 			
 			this._segments	= [];
-			this._direction	= 'right';
-			this._drawn		= false;
 			this._keys		= {};
 			
 			Snakes.movers.push(this);
 		},
-		Snake: function(length, direction, color) {
-			this._direction = direction;
-
+		Snake: function(length, color) {
 			this.color(color);
 
 			// The "head" is its own segment
@@ -126,8 +151,7 @@ window.onload = function () {
 			};
 
 			this.bind("EnterFrame",function() {
-				if(this.disableControls) return;
-				if(this._drawn) return;
+				if(!this.newLocation) return;
 
 				var prevX = this.x,
 					prevY = this.y,
@@ -137,28 +161,13 @@ window.onload = function () {
 						x: this.x,
 						y: this.y
 					});
+				
+				this.x = this.newLocation.x;
+				this.y = this.newLocation.y;
+
+				delete this.newLocation;
 
 				this._segments.unshift(tail);
-
-				switch(this._direction) {
-					case 'up':
-						this.y -= Snakes.tileSize;
-						break;
-
-					case 'down':
-						this.y += Snakes.tileSize;
-						break;
-
-					case 'left':
-						this.x -= Snakes.tileSize;
-						break;
-
-					case 'right':
-						this.x += Snakes.tileSize;
-						break;
-				}
-
-				this._drawn = true;
 				this.trigger('Moved', {x: prevX, y: prevY});
 			});
 
@@ -198,10 +207,10 @@ window.onload = function () {
 			
 			Snakes.movers.push(this);
 		},
-		Player: function(length, direction, color, keys) {
+		Player: function(length, color, keys) {
 			this._keys = keys;
 			
-			this.Snake(length, direction, color);
+			this.Snake(length, color);
 						
 			this.bind("KeyDown", function(e) {
 				if(this._keys[e.key]) {
@@ -215,34 +224,11 @@ window.onload = function () {
 					sock.emit('direction', this._keys[e.key]);
 				}
 			});
+			
+			return this;
 		}
 	});
 	
-	// TODO: These would come from the server
-	Snakes.innerWalls = [
-		{ x: 5, y: 5},
-		{ x: 5, y: 6},
-		{ x: 5, y: 7},
-		{ x: 5, y: 8},
-		{ x: 5, y: 9},
-		
-		{ x: 6, y: 7},
-		
-		{ x: 7, y: 5},
-		{ x: 7, y: 6},
-		{ x: 7, y: 7},
-		{ x: 7, y: 8},
-		{ x: 7, y: 9},
-		
-		
-		{ x: 11, y: 5},
-		{ x: 11, y: 6},
-		{ x: 11, y: 7},
-		{ x: 11, y: 8},
-		{ x: 11, y: 9}
-	];
-	
-    //start crafty
     Crafty.init(Snakes.worldWidth * Snakes.tileSize, Snakes.worldHeight * Snakes.tileSize);
     Crafty.canvas.init();
 
