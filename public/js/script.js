@@ -93,8 +93,14 @@ window.onload = function () {
 			});
 
 			this.bind('Moved', function(from) {
-					if(this.hit('solid'))
-						this.attr({ x: from.x, y: from.y });
+					if(this.hit('solid')) {
+						// TODO: Add death rattle
+						for(var i = 0; i < this._segments.length; i++) {
+							this._segments[i].destroy();
+						}
+						
+						this.destroy();
+					}
 				});
 			
 			return this;
