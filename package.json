@@ -1,0 +1,17 @@
+{
+  "author": "Ben Atkin, Neal Erickson, Kevin Gorski, Eoin Coffey",
+  "name": "jspotters",
+  "description": "Node Abode Node.js Knockout Entry",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nko2/jspotters.git"
+  },
+  "engines": {
+    "node": "~v0.4.10"
+  },
+  "dependencies": {
+    "nko": "~0.1.1"
+  },
+  "devDependencies": {}
+}
