@@ -133,6 +133,30 @@ window.onload = function () {
 		}
 	});
 	
+	// These would come from the server
+	Crafty.innerWalls = [
+		{ x: 5, y: 5},
+		{ x: 5, y: 6},
+		{ x: 5, y: 7},
+		{ x: 5, y: 8},
+		{ x: 5, y: 9},
+		
+		{ x: 6, y: 7},
+		
+		{ x: 7, y: 5},
+		{ x: 7, y: 6},
+		{ x: 7, y: 7},
+		{ x: 7, y: 8},
+		{ x: 7, y: 9},
+		
+		
+		{ x: 11, y: 5},
+		{ x: 11, y: 6},
+		{ x: 11, y: 7},
+		{ x: 11, y: 8},
+		{ x: 11, y: 9}
+	];
+	
     //start crafty
     Crafty.init(Snakes.worldWidth * Snakes.tileSize, Snakes.worldHeight * Snakes.tileSize);
     Crafty.canvas.init();

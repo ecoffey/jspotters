@@ -11,10 +11,10 @@ Crafty.scene("loading", function () {
 
 Crafty.scene("main", function () {
 	Crafty.background("black");
-
+	
+	// Outer walls
     for (var i = 0; i < Snakes.worldWidth; i++) {
         for (var j = 0; j < Snakes.worldHeight; j++) {
-			// Outer walls
             if(i === 0 || i === 24 || j === 0 || j === 20) {
                 Crafty.e('wall')
                 	.attr({ 
@@ -23,8 +23,21 @@ Crafty.scene("main", function () {
 						z:2
 					});
 			}
+			
         }
     }
+
+	// Inner walls
+	for (var i=0; i < Crafty.innerWalls.length; i++) {
+		var coords = Crafty.innerWalls[i];
+		
+		Crafty.e('wall')
+			.attr({
+				x: coords.x * Snakes.tileSize,
+				y: coords.y * Snakes.tileSize,
+				z: 2
+			});
+	};
 
 	Crafty.e('Player')
 		.attr({ 
