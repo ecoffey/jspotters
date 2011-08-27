@@ -1,19 +1,24 @@
 {
-  "author": "Ben Atkin, Neal Erickson, Kevin Gorski, Eoin Coffey",
-  "name": "jspotters",
-  "description": "Node Abode Node.js Knockout Entry",
-  "version": "0.0.1",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/nko2/jspotters.git"
-  },
-  "engines": {
-    "node": ">=v0.4.8"
-  },
-  "dependencies": {
-    "nko": "~0.1.1",
-    "express": "~2.4.3",
-    "socket.io": "~0.7.9"
-  },
-  "devDependencies": {}
+	"author": "Ben Atkin, Neal Erickson, Kevin Gorski, Eoin Coffey",
+	"name": "jspotters",
+	"description": "Node Abode Node.js Knockout Entry",
+	"version": "0.0.1",
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/nko2/jspotters.git"
+	},
+	"engines": {
+		"node": ">=v0.4.8"
+	},
+	"dependencies": {
+		"nko": "~0.1.1",
+		"express": "~2.4.3",
+		"socket.io": "~0.7.9"
+	},
+	"devDependencies": {
+		"vows": "0.5.11"
+	},
+	"scripts": {
+		"test": "vows"
+	}
 }
