@@ -3,5 +3,7 @@ var Snakes = {
 	worldWidth: 25,
 	worldHeight: 21,
 	startingLength: 3,
-	movers: []
+	movers: [],
+	innerWalls: [],
+	fruit: []
 };

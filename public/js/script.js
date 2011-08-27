@@ -17,6 +17,29 @@ window.onload = function () {
 		}
 	});
 	
+	Crafty.c('fruit', {
+		init: function() {
+			this.addComponent('2D, Canvas, Color, Collision');
+			
+			this.w = Snakes.tileSize;
+			this.h = Snakes.tileSize;
+			
+			this.color('red')
+				.collision();
+			
+			this.onHit('Snake', function(){
+				for (var i=0; i < Snakes.fruit.length; i++) {
+					var target = Snakes.fruit[i];
+					
+					if(target.x === this.x && target.y === this.y)
+						Snakes.fruit.slice(i, i+1);
+				};
+				
+				this.destroy();
+			});
+		}
+	});
+	
 	Crafty.c('SnakeSegment', {
 		init: function() {
 			this.addComponent('2D, Canvas, Color, solid, Collision');
@@ -106,6 +129,19 @@ window.onload = function () {
 						}
 						
 						this.destroy();
+						
+						return;
+					}
+					
+					if(this.hit('fruit')) {
+						this._segments.push(
+							Crafty.e('SnakeSegment')
+								.SnakeSegment(color)
+								.attr({
+									x: this.x,
+									y: this.y,
+									z: this.z
+								}));
 					}
 				});
 			
@@ -140,6 +176,30 @@ window.onload = function () {
 			});
 		}
 	});
+	
+	// TODO: These would come from the server
+	Snakes.innerWalls = [
+		{ x: 5, y: 5},
+		{ x: 5, y: 6},
+		{ x: 5, y: 7},
+		{ x: 5, y: 8},
+		{ x: 5, y: 9},
+		
+		{ x: 6, y: 7},
+		
+		{ x: 7, y: 5},
+		{ x: 7, y: 6},
+		{ x: 7, y: 7},
+		{ x: 7, y: 8},
+		{ x: 7, y: 9},
+		
+		
+		{ x: 11, y: 5},
+		{ x: 11, y: 6},
+		{ x: 11, y: 7},
+		{ x: 11, y: 8},
+		{ x: 11, y: 9}
+	];
 	
     //start crafty
     Crafty.init(Snakes.worldWidth * Snakes.tileSize, Snakes.worldHeight * Snakes.tileSize);
