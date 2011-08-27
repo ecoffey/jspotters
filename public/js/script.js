@@ -1,6 +1,7 @@
 window.onload = function () {
 	var sock = io.connect(),
 		snakes = [],
+		fruits = [],
 		playerNumber;
 
 	// Server event handlers
@@ -40,6 +41,22 @@ window.onload = function () {
 					break;
 				}
 			};
+		};
+		
+		for (var i=0; i < gameState.fruit.length; i++) {
+			var fruit = gameState.fruit[i];
+			
+			if(fruits.length <= i) {
+				fruits.push(Crafty.e('fruit').attr({
+					x: fruit.x * Snakes.tileSize,
+					y: fruit.y * Snakes.tileSize
+				}));
+			} else {
+				fruits[i].attr({
+					x: fruit.x * Snakes.tileSize,
+					y: fruit.y * Snakes.tileSize
+				});
+			}
 		};
 	});
 	
