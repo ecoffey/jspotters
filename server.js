@@ -1,11 +1,15 @@
 var http = require('http'); 
 var express = require('express');
 var nko = require('nko')('kXMcKF9DfRvjNGzS');
-
 var server = express.createServer();
+var io = require('socket.io').listen(server);
+
+var gameModule = require('./engine/game');
+
+var game = gameModule.newGame(1);
 
 server.configure(function() {
-  server.use(express.static(__dirname + '/public'));
+	server.use(express.static(__dirname + '/public'));
 });
 
 server.get('/', function(req, res) {
@@ -29,10 +33,12 @@ server.listen(process.env.NODE_ENV === 'production' ? 80 : 7777, function() {
 });
 console.log('Started server on ' + server.address().port);
 
-// right now, the game engine etcetera
-function Game(id) {
-	this.id = id;
-};
+io.sockets.on('connection', function(sock) {
+	sock.on('direction', function(dir) {
+		console.log('Dir ' + dir);
+		sock.emit('direction', dir);
+	});
+});
 
 var HandleGameEntry = function(req, res) {
 	// the id passed in the url

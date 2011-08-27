@@ -1,4 +1,10 @@
 window.onload = function () {
+	var sock = io.connect();
+
+	sock.on('connect', function() {
+		console.log('oh hai');
+	});
+
 	var tileSize = 16,
 		worldWidth = 25,
 		worldHeight = 21,
@@ -58,14 +64,18 @@ window.onload = function () {
 						}));
 			};
 			
+			var s = this;
+			sock.on('direction', function(dir) {
+				s._direction = dir;
+			});
+
 			this.bind("KeyDown", function(e) {
 				if(this._keys[e.key]) {
-					this._direction = this._keys[e.key];
 				}
 			})
 			.bind("KeyUp", function(e) {
 				if(this._keys[e.key]) {
-					this._direction = this._keys[e.key];
+					sock.emit('direction', this._keys[e.key]);
 				}
 			})
 			.bind("EnterFrame",function() {

@@ -1,9 +1,10 @@
-exports.createNew = createNew;
+var exports = module.exports;
 
 function Game(id) {
 	this.id = id;
 };
 
-function createNew(id){
+exports.newGame = function(id) {
 	return new Game(id);
-};
+}
+
