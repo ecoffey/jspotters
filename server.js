@@ -2,7 +2,9 @@ var http = require('http');
 var express = require('express');
 var nko = require('nko')('kXMcKF9DfRvjNGzS');
 
+// Server initialization
 var server = express.createServer();
+var io = require('socket.io').listen(server);
 
 server.configure(function() {
   server.use(express.static(__dirname + '/public'));
@@ -29,20 +31,27 @@ server.listen(process.env.NODE_ENV === 'production' ? 80 : 7777, function() {
 });
 console.log('Started server on ' + server.address().port);
 
-// right now, the game engine etcetera
-function Game(id) {
-	this.id = id;
-};
+// Game module junk ///////////////////////////////////////////////////
 
-var HandleGameEntry = function(req, res) {
-	// the id passed in the url
-	var id = req.params.gameId;
+// initialize
+var gameModule = require('./engine/game');
+var game = gameModule.createNew(1);
+
+// once the client has connected
+io.sockets.on('connection', function(sock) {
+	// hook up input events
+	sock.on('direction', function(dir) {
+    	console.log('Dir ' + dir);	
+	    sock.emit('direction', dir);	
+	});
 	
-	// first step:
-	//
-	// check if the game exists :
-	//   if y, see if we can join (not in progress, < 4 players)
-	//     if y, add player to game
-	//     if n, redirect back to landing page (notify?)
-	//   if n, initialize a new game session
-};
+	// start the game!
+	game.start();
+	
+	//setTimeout(function() { game.stop(); }, 3000);
+});
+
+
+
+
+
