@@ -25,7 +25,7 @@ Game.prototype.updateGameState = updateGameState;
 
 function start(){
 	console.log('game ' + this.id + ' started');
-	this.intervalId = setInterval(updateGameState, 250); // need args?
+	this.intervalId = setInterval(updateGameState.bind(this), 250); // need args?
 }
 Game.prototype.start = start;
 
