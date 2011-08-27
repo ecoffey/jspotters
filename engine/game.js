@@ -41,8 +41,8 @@ function Game(id) {
 	this.startingLength	= 3;
 	this.fruitGenRate	= 3;
 	this.generation 	= 0;
-	this.innerWalls 	= [];
 	
+	this.innerWalls 	= [];
 	this.snakes			= [];
 	this.fruit			= [];
 	
@@ -85,21 +85,6 @@ Game.prototype.updateGameState = function () {
 	// Check for fruit spawn!
 	if(this.generation % this.fruitGenRate === 0) {
 		var x, y;
-		var conflict = function(coord) {
-			//var compCoord,
-			//	arrays = [this.innerWalls, this.fruit, this.snakes];
-			
-			//for (var a=0; a < arrays.length; a++) {
-			//	for (var i=0; i < arrays[a].length; i++) {
-			//		compCoord = arrays[a][i];
-
-			//		if(coord.x === compCoord.x && coord.y === compCoord.y)
-			//			return true;
-			//	};
-			//};
-			
-			return false;
-		};
 		
 		function randomInt(from, to) {
 			return Math.floor(Math.random() * (to - from + 1) + from);
@@ -109,7 +94,7 @@ Game.prototype.updateGameState = function () {
 			// zero-based index means '0' is left wall, 'x-2' is right wall
 			x = randomInt(1, this.worldWidth - 2);
 			y = randomInt(1, this.worldHeight - 2);
-		} while(conflict({ x:x, y:y}));
+		} while(this.collision({ x:x, y:y}));
 		
 		console.log('new fruit x y : ' + x  + ' ' + y);
 		
@@ -159,6 +144,25 @@ Game.prototype.updateGameState = function () {
 	for (var i=0; i < this.snakes.length; i++) {
 		this.snakes[i].socket.emit('gameState', gameState);
 	};
+};
+
+Game.prototype.collision = function(coord){
+	var compCoord,
+		arrays = [this.innerWalls, this.fruit, this.snakes];
+
+	//console.log(this.innerWalls);
+	//console.log(this.fruit);
+	//console.log(this.snakes);
+	for (var a=0; a < arrays.length; a++) {
+		for (var i=0; i < arrays[a].length; i++) {
+			compCoord = arrays[a][i];
+
+			if(coord.x === compCoord.x && coord.y === compCoord.y)
+				return true;
+		};
+	};
+			
+	return false;
 };
 
 Game.prototype.start = function () {
