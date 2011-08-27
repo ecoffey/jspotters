@@ -4,6 +4,10 @@ var nko = require('nko')('kXMcKF9DfRvjNGzS');
 
 var server = express.createServer();
 
+server.configure(function() {
+  server.use(express.static(__dirname + '/public'));
+});
+
 server.get('/', function(req, res) {
 	res.send('hiss-teria landing page!');
 });
