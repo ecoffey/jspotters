@@ -8,7 +8,7 @@
     "url": "git://github.com/nko2/jspotters.git"
   },
   "engines": {
-    "node": "~v0.4.10"
+    "node": ">=v0.4.8"
   },
   "dependencies": {
     "nko": "~0.1.1",
