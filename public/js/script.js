@@ -1,8 +1,19 @@
 window.onload = function () {
-	var sock = io.connect();
+	var sock = io.connect(),
+		playerNumber;
 
 	sock.on('connect', function() {
 		console.log('oh hai');
+	});
+	
+	sock.on('joined', function(data) {
+		playerNumber = data.playerNumber;
+		
+		console.log('player', playerNumber);
+	});
+	
+	sock.on('gameState', function(gameState) {
+		console.log(gameState);
 	});
 	
 	Crafty.c('wall', {
