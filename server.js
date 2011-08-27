@@ -7,7 +7,7 @@ var server = express.createServer();
 var io = require('socket.io').listen(server);
 
 server.configure(function() {
-  server.use(express.static(__dirname + '/public'));
+	server.use(express.static(__dirname + '/public'));
 });
 
 server.get('/', function(req, res) {
@@ -43,7 +43,7 @@ io.sockets.on('connection', function(sock) {
 
 	// hook up input events
 	sock.on('direction', function(dir) {
-    	console.log('Dir ' + dir);	
+		console.log('Dir ' + dir);	
 	    sock.emit('direction', dir);	
 	});
 	
