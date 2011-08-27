@@ -48,6 +48,8 @@ function Game(id) {
 	
 	//TODO: select or random
 	this.level = levels[0];
+	this.innerWalls = this.level.innerWalls;
+	
 	console.log('game ' + this.id + 'created');
 };
 
@@ -55,8 +57,8 @@ Game.prototype.join = function(socket) {
 	var playerNumber = this.snakes.length + 1,
 		startingLocation = this.level.startingLocations[playerNumber],
 		snake = { 
-			x: startingLocation.x >= 0 ? startingLocation.x : this.worldWidth + startingLocation.x, 
-			y: startingLocation.y >= 0 ? startingLocation.y : this.worldHeight + startingLocation.y,
+			x: (startingLocation.x > -1 ? startingLocation.x : this.worldWidth + startingLocation.x), 
+			y: (startingLocation.y > -1 ? startingLocation.y : this.worldHeight + startingLocation.y),
 			length: this.startingLength,
 			direction: 'right',
 			color: 'green',
@@ -72,7 +74,14 @@ Game.prototype.join = function(socket) {
 		snake.direction = dir;
 	});
 	
-	socket.emit('joined', { playerNumber: playerNumber });
+	socket.emit('joined', { 
+		playerNumber: playerNumber,
+		startingLocation: {
+			x: snake.x, 
+			y: snake.y
+		},
+		innerWalls: this.innerWalls
+	});
 };
 
 Game.prototype.updateGameState = function () {
@@ -188,7 +197,6 @@ Game.prototype.occupied = function(coord){
 
 Game.prototype.start = function () {
 	// Create level
-	this.innerWalls = this.level.innerWalls;
 	this.intervalId = setInterval(this.updateGameState.bind(this), 250);
 	this.active = true;
 	console.log('game ' + this.id + ' started, interval id:' + this.intervalId);
