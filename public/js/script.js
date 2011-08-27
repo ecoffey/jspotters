@@ -16,6 +16,36 @@ window.onload = function () {
 				.collision();
 		}
 	});
+
+	Crafty.c('Level', {
+		Level: function() {
+			// Outer walls
+			for (var i = 0; i < Snakes.worldWidth; i++) {
+				for (var j = 0; j < Snakes.worldHeight; j++) {
+					if(i === 0 || i === 24 || j === 0 || j === 20) {
+						Crafty.e('wall')
+							.attr({ 
+								x: i * Snakes.tileSize, 
+								y: j * Snakes.tileSize, 
+								z:2
+							});
+					}
+				}
+			}
+
+			// Inner walls
+			for (var i=0; i < Snakes.innerWalls.length; i++) {
+				var coords =  Snakes.innerWalls[i];
+				
+				Crafty.e('wall')
+					.attr({
+						x: coords.x * Snakes.tileSize,
+						y: coords.y * Snakes.tileSize,
+						z: 2
+					});
+			};
+		}
+	});
 	
 	Crafty.c('fruit', {
 		init: function() {
