@@ -39,6 +39,8 @@ var game = gameModule.createNew(1);
 
 // once the client has connected
 io.sockets.on('connection', function(sock) {
+	console.log('client connected');
+
 	// hook up input events
 	sock.on('direction', function(dir) {
     	console.log('Dir ' + dir);	

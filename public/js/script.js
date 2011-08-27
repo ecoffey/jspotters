@@ -1,4 +1,10 @@
 window.onload = function () {
+	var sock = io.connect();
+
+	sock.on('connect', function() {
+		console.log('oh hai');
+	});
+	
 	Crafty.c('wall', {
 		init: function() {
 			this.addComponent('2D, Canvas, Color, Collision, solid');
@@ -128,6 +134,8 @@ window.onload = function () {
 			.bind("KeyUp", function(e) {
 				if(this._keys[e.key]) {
 					this._direction = this._keys[e.key];
+					
+					sock.emit('direction', this._keys[e.key]);
 				}
 			});
 		}
