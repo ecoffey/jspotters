@@ -10,20 +10,19 @@ window.onload = function () {
 
 	Crafty.c('wall', {
 		init: function() {
-			this.addComponent('2D, DOM, Color, Collision, solid');
+			this.addComponent('2D, Canvas, Color, Collision, solid');
 			
 			this.w = tileSize;
 			this.h = tileSize;
 			
-			this.color('blue');
-			
-			this.collision();
+			this.color('blue')
+				.collision();
 		}
 	});
 	
 	Crafty.c('SnakeSegment', {
 		init: function() {
-			this.addComponent('2D, DOM, Color, solid, Collision');
+			this.addComponent('2D, Canvas, Color, solid, Collision');
 			
 			this.h = tileSize;
 			this.w = tileSize;
@@ -36,7 +35,8 @@ window.onload = function () {
 		_segments: [],
 		_direction: 'right',
 		_drawn: false,
-		_keys: { 38: 'up', 40: 'down', 39: 'right', 37: 'left'},
+		_keys: {},
+		
 		init: function() {
 			this.addComponent('SnakeSegment');
 			this.h = tileSize;
@@ -44,7 +44,7 @@ window.onload = function () {
 			
 			movers.push(this);
 		},
-		Snake: function(length, direction) {
+		_snake: function(length, direction) {
 			this._direction = direction;
 
 			// The "head" is its own segment
@@ -58,17 +58,8 @@ window.onload = function () {
 						}));
 			};
 			
-			this.bind("KeyDown", function(e) {
-				if(this._keys[e.key]) {
-					this._direction = this._keys[e.key];
-				}
-			})
-			.bind("KeyUp", function(e) {
-				if(this._keys[e.key]) {
-					this._direction = this._keys[e.key];
-				}
-			})
-			.bind("EnterFrame",function() {
+
+			this.bind("EnterFrame",function() {
 				if(this.disableControls) return;
 				if(this._drawn) return;
 
@@ -109,8 +100,37 @@ window.onload = function () {
 					if(this.hit('solid'))
 						this.attr({ x: from.x, y: from.y });
 				});
+		},
+		Snake: function(length, direction) {
+			this._snake(length, direction);
 			
 			return this;
+		}
+	});
+	
+	Crafty.c('Player', {
+		init: function() {
+			this.addComponent('Snake');
+			this.h = tileSize;
+			this.w = tileSize;
+			
+			movers.push(this);
+		},
+		Player: function(length, direction, keys) {
+			this._keys = keys;
+			
+			this._snake(length, direction);
+						
+			this.bind("KeyDown", function(e) {
+				if(this._keys[e.key]) {
+					this._direction = this._keys[e.key];
+				}
+			})
+			.bind("KeyUp", function(e) {
+				if(this._keys[e.key]) {
+					this._direction = this._keys[e.key];
+				}
+			});
 		}
 	});
 
@@ -119,11 +139,15 @@ window.onload = function () {
         //loop through all tiles
         for (var i = 0; i < worldWidth; i++) {
             for (var j = 0; j < worldHeight; j++) {
-
 				// Outer walls
-                if(i === 0 || i === 24 || j === 0 || j === 20)
+                if(i === 0 || i === 24 || j === 0 || j === 20) {
                     Crafty.e('wall')
-                    	.attr({ x: i * 16, y: j * 16, z: 2 });
+                    	.attr({ 
+							x: i * tileSize, 
+							y: j * tileSize, 
+							z:2
+						});
+				}
             }
         }
 
@@ -136,10 +160,13 @@ window.onload = function () {
 
     //the loading screen that will display while our assets load
     Crafty.scene("loading", function () {
-        //black background with some loading text
-        Crafty.e("2D, DOM, Text").attr({ w: 100, h: 20, x: 150, y: 120 })
-                .text("Loading")
-                .css({ "text-align": "center" });
+	
+        Crafty.e("2D, DOM, Text").attr({ w: tileSize * worldWidth, h: 20 })
+			.text("Loading")
+			.css({ 
+				"text-align": "center", 
+				"top": "120px",
+				"color": "White" });
 
 		Crafty.scene("main"); //when everything is loaded, run the main scene
     });
@@ -149,15 +176,15 @@ window.onload = function () {
 
 		generateWorld();
 
-		Crafty.e('Snake')
+		Crafty.e('Player')
 			.attr({ 
 				x: tileSize * 3, 
 				y: tileSize, 
 				z: 1
-			}).Snake(3, 'right');
+			}).Player(3, 'right', { 38: 'up', 40: 'down', 39: 'right', 37: 'left'});
     });
 
 	
-    Crafty.scene("loading");
-        Crafty.background("#000");
+	Crafty.scene("loading");
+	Crafty.background("#000");
 };
