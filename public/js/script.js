@@ -22,7 +22,13 @@ window.onload = function () {
 				.collision();
 			
 			this.onHit('Snake', function(){
-				// TODO: Remove from fruit array
+				for (var i=0; i < Snakes.fruit.length; i++) {
+					var target = Snakes.fruit[i];
+					
+					if(target.x === this.x && target.y === this.y)
+						Snakes.fruit.slice(i, i+1);
+				};
+				
 				this.destroy();
 			});
 		}
