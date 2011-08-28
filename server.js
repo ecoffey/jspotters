@@ -11,7 +11,9 @@ var http	= require('http'),
 server.configure(function() {
 	server.use(express.static(__dirname + '/public'));
 });
-
+io.configure(function() {
+	io.set('log level', 1);
+});
 
 // Routes
 server.get('/', function(req, res) {

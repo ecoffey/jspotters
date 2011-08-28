@@ -5,6 +5,10 @@ window.onload = function () {
 		playerNumber,
 		playerCard;
 
+	sock.on('message', function(msg) {
+		alert(msg);
+	});
+	
 	sock.on('rejoin', function() {
 		window.location = '/join';
 	});
@@ -110,6 +114,10 @@ window.onload = function () {
 		};
 	});
 	
+	sock.on('gameOver', function(playerWins) {
+		console.log('Player ' + playerWins + ' wins!');
+	});
+	
 	
 	// Crafty Components
 	Crafty.c('wall', {
@@ -164,16 +172,16 @@ window.onload = function () {
 			this.color('red')
 				.collision();
 			
-			this.onHit('Snake', function(){
-				for (var i=0; i < Snakes.fruit.length; i++) {
-					var target = Snakes.fruit[i];
+			//this.onHit('Snake', function(){
+			//	for (var i=0; i < Snakes.fruit.length; i++) {
+			//		var target = Snakes.fruit[i];
 					
-					if(target.x === this.x && target.y === this.y)
-						Snakes.fruit.splice(i, 1);
-				};
+			//		if(target.x === this.x && target.y === this.y)
+			//			Snakes.fruit.splice(i, 1);
+			//	};
 				
-				this.destroy();
-			});
+			//	this.destroy();
+			//});
 		}
 	});
 	

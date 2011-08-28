@@ -1,3 +1,5 @@
+var util = require('util');
+
 exports.createNew = function (id, destroy){
 	return new Game(id, destroy);
 };
@@ -43,7 +45,8 @@ function Game(id, destroy) {
 	this.worldWidth		= 25;
 	this.worldHeight	= 21;
 	this.startingLength	= 3;
-	this.fruitGenRate	= 10;
+	this.fruitGenRate	= 4;
+	this.maxFruit		= 5;
 	this.engineInterval = 250;
 	this.snakeIncrease 	= 1;
 	
@@ -101,7 +104,15 @@ Game.prototype.join = function(socket) {
 		}
 	}.bind(this));
 	
+	// socket event: update snake direction (if !stupid)
 	socket.on('direction', function(dir) {
+		var currentDir = snake.direction;
+		if((currentDir === 'up' && dir === 'down') ||
+			(currentDir === 'down' && dir === 'up') ||
+			(currentDir === 'left' && dir === 'right') ||
+			(currentDir === 'right' && dir === 'left')) {
+			return;
+		}
 		snake.direction = dir;
 	});
 	
@@ -139,8 +150,37 @@ Game.prototype.join = function(socket) {
 	this.snakes.push(snake);
 };
 
+Game.prototype.killSnake = function (snake, reason){
+	snake.dead = true;
+
+	snake.socket.emit('death', this.generation);
+	snake.socket.emit('message', 'died:' + reason);
+
+	console.log('snake ' + snake.playerNumber + ' died (' + reason + ')');
+	
+	var liveOnes = 0,
+		winner;
+				
+	for (var j=0; j < this.snakes.length; j++) {
+		if(this.snakes[j].dead) continue;
+
+		liveOnes++;
+		
+		winner = this.snakes[j].playerNumber;
+	};
+	
+	if(liveOnes === 1) {
+		for (var j=0; j < this.snakes.length; j++) {
+			this.snakes[j].socket.emit('gameOver', winner);
+		}				
+		
+		this.stop();
+	}
+};
+
 Game.prototype.updateGameState = function () {
 	this.generation++;
+	console.log('---------------------------------------------------------------');
 	console.log('game state update ' + this.generation);
 
 	var gameState = {
@@ -149,7 +189,7 @@ Game.prototype.updateGameState = function () {
 	};
 	
 	// Check for fruit spawn!
-	if(this.generation % this.fruitGenRate === 0) {
+	if((this.fruit.length < this.maxFruit) && (this.generation % this.fruitGenRate === 0)) {
 		var x, y;
 		
 		function randomInt(from, to) {
@@ -208,14 +248,13 @@ Game.prototype.updateGameState = function () {
 		// check snake collisions
 		// TODO: These detections should probably be done after all movements have been applied
 		// so we can ensure all effects are correctly applied
-		function killSnake(snake, reason){
-			snake.dead = true;
-			snake.socket.emit('death', this.generation);
-			console.log('snake ' + snake.playerNumber + ' died (' + reason + ')');
-		}
 		
 		//Check for fruit
-		if(this.checkHit(this.fruit, snake)){
+		var fruitHitIndex = this.checkHitIndex(this.fruit, snake);
+		console.log('fruitHitIndex:' + fruitHitIndex);
+		if(fruitHitIndex !== null){
+			console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+			console.log('fruit hit!!!!!!!' + fruitHitIndex);
 			var previousTail = snake.segments[snake.segments.length - 1];
 			
 			for (var i=0; i < this.snakeIncrease; i++) {
@@ -226,21 +265,29 @@ Game.prototype.updateGameState = function () {
 				
 				newSegments++;
 			};
-			// TODO remove fruit
+			
+			// remove fruit from array
+			this.fruit.splice(fruitHitIndex, 1)
+			console.log('new fruit count: ' + this.fruit.length);
 		};
+		
 		// Check for interior wall collision
 		if(this.checkHit(this.innerWalls, snake)){
-			killSnake(snake, 'inner walls');
+			this.killSnake(snake, 'inner walls');
 		};
+		
 		//Check for other snakes
-		if(this.checkHit(this.snakes, snake)){
-			// TODO needs to not kill itself
-			//killSnake(snake, 'hit other snake');
-		};
+		for(var x=0; x<this.snakes.length; x++){
+			var otherSnake = this.snakes[x];
+			if(snake.playerNumber !== otherSnake.playerNumber){
+				killSnake(snake, 'hit other snake');
+			}
+		}
+
 		//Check for outer walls
-		if((snake.x > this.gameWidth) || (snake.x < 0)
-			|| (snake.y > this.gameHeight) || (snake.y < 0)){
-			killSnake(snake, 'outer walls');
+		if((snake.x > this.worldWidth - 2) || (snake.x < 1)
+			|| (snake.y > this.worldHeight - 2) || (snake.y < 1)){
+			this.killSnake(snake, 'outer walls');
 		}
 		
 		// Also update game state object
@@ -252,10 +299,29 @@ Game.prototype.updateGameState = function () {
 		});
 	}
 		
+	// debug : write game state
+	console.log(util.inspect(gameState));
+		
 	// Broadcast game state to all snakes/players
 	for (var i=0; i < this.snakes.length; i++) {
 		this.snakes[i].socket.emit('gameState', gameState);
 	};
+};
+
+// will return index of the array that was hit
+Game.prototype.checkHitIndex = function(array, coord) {
+	var compCoord;
+	var index = null;
+	for (var i=0; i < array.length; i++) {
+			compCoord = array[i];
+			console.log('x: ' + coord.x + ' y:' + coord.y + ', x:' + compCoord.x + ' y:' + compCoord.y);
+			if((coord.x === compCoord.x) && (coord.y === compCoord.y)){
+				console.log('hit at index ' + i);
+				index = i;
+				break;
+			}
+		};
+	return index;
 };
 
 Game.prototype.checkHit = function(array, coord) {
@@ -263,8 +329,9 @@ Game.prototype.checkHit = function(array, coord) {
 	
 	for (var i=0; i < array.length; i++) {
 			compCoord = array[i];
-
+			//console.log('x: ' + coord.x + ' y:' + coord.y + ', x:' + compCoord.x + ' y:' + compCoord.y);
 			if(coord.x === compCoord.x && coord.y === compCoord.y)
+				//console.log('hit at index ' + i);
 				return true;
 		};
 	return false;
@@ -299,9 +366,11 @@ Game.prototype.start = function () {
 Game.prototype.stop = function (){
 	if(this.intervalId) {
 		console.log('game stopped');
-		clearTimeout(this.intervalId);	
-		this.active = false;
-	}
+		clearTimeout(this.intervalId);
+	}	
 	
+	// Remove from the list, then deactivate
 	this.destroy();
+
+	this.active = false;
 };
