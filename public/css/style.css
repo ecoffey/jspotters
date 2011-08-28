@@ -13,10 +13,13 @@
 
 @font-face{font-family:"04b_03";src:url("/fonts/04b_03__-webfont.eot");src:url("/fonts/04b_03__-webfont.eot?iefix") format("eot"),url("/fonts/04b_03__-webfont.woff") format("woff"),url("/fonts/04b_03__-webfont.ttf") format("truetype"),url("/fonts/04b_03__-webfont.svg#webfontiFL0wwqh") format("svg");font-weight:normal;font-style:normal;font-size:18px}
 
-.wrapper { width: 700px; margin: 0 auto; }
+.wrapper { width: 800px; margin: 0 auto; }
 .eightbit { font-family: "04b_03", monospace; }
 .eightbit h1 { font-size: 72px; margin: 0; }
 .eightbit p { font-size: 24px; }
+.clear { clear: both; }
+#game-info { float: left; margin-left: 15px; width: 285px; }
+#game-info p { font-size: 18px !important; }
 
 article, aside, details, figcaption, figure, footer, header, hgroup, nav, section { display: block; }
 audio[controls], canvas, video { display: inline-block; *display: inline; *zoom: 1; }
@@ -208,7 +211,7 @@ table { border-collapse: collapse; border-spacing: 0; }
    Author: 
    ========================================================================== */
 
-#cr-stage { border:2px solid black; margin:5px auto; color:white }
+#cr-stage { border:2px solid black; margin:5px auto; color:white; float: left; }
 
 
 button::-moz-focus-inner { border: 0; }
