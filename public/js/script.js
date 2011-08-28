@@ -50,6 +50,8 @@ window.onload = function () {
 	});
 	
 	sock.on('start', function() {
+		$('.Waiting').remove();
+		
 		playerCard.destroy();
 	});
 	
@@ -280,4 +282,8 @@ window.onload = function () {
 
 	Crafty.background("#000");
 	Crafty.scene("loading");
+	
+	$('.StartAnyway').click(function() {
+		sock.emit('start');
+	});
 };

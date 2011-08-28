@@ -75,6 +75,12 @@ Game.prototype.join = function(socket) {
 	
 	console.log(this.id + ': new player ' + playerNumber + ' ' + snake);
 	
+	socket.on('start', function() {
+		if(this.active) return;
+		
+		this.start();
+	}.bind(this));
+	
 	socket.on('disconnect', function() {
 		for (var i=0; i < this.snakes.length; i++) {
 			if(this.snakes[i].playerNumber === playerNumber) {

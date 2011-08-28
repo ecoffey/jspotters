@@ -76,9 +76,5 @@ io.sockets.on('connection', function(sock) {
 	}
 
 	// add new player
-	game.join(sock);
-	
-	// start game if not
-	if(!game.active)
-		game.start();
+	game.join(sock);	
 });
