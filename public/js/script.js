@@ -135,13 +135,12 @@ $(function () {
 	// Crafty Components
 	Crafty.c('wall', {
 		init: function() {
-			this.addComponent('2D, Canvas, Color, Collision, solid');
+			this.addComponent('2D, Canvas, Color, solid');
 			
 			this.w = Snakes.tileSize;
 			this.h = Snakes.tileSize;
 			
-			this.color('blue')
-				.collision();
+			this.color('blue');
 		}
 	});
 
@@ -150,7 +149,7 @@ $(function () {
 			// Outer walls
 			for (var i = 0; i < Snakes.worldWidth; i++) {
 				for (var j = 0; j < Snakes.worldHeight; j++) {
-					if(i === 0 || i === 24 || j === 0 || j === 20) {
+					if(i === 0 || i === Snakes.worldWidth - 1 || j === 0 || j === Snakes.worldHeight - 1) {
 						Crafty.e('wall')
 							.attr({ 
 								x: i * Snakes.tileSize, 
@@ -177,30 +176,18 @@ $(function () {
 	
 	Crafty.c('fruit', {
 		init: function() {
-			this.addComponent('2D, Canvas, Color, Collision');
+			this.addComponent('2D, Canvas, Color');
 			
 			this.w = Snakes.tileSize;
 			this.h = Snakes.tileSize;
 			
-			this.color('red')
-				.collision();
-			
-			//this.onHit('Snake', function(){
-			//	for (var i=0; i < Snakes.fruit.length; i++) {
-			//		var target = Snakes.fruit[i];
-					
-			//		if(target.x === this.x && target.y === this.y)
-			//			Snakes.fruit.splice(i, 1);
-			//	};
-				
-			//	this.destroy();
-			//});
+			this.color('red');
 		}
 	});
 	
 	Crafty.c('SnakeSegment', {
 		init: function() {
-			this.addComponent('2D, Canvas, Color, solid, Collision');
+			this.addComponent('2D, Canvas, Color, solid');
 			
 			this.h = Snakes.tileSize;
 			this.w = Snakes.tileSize;
