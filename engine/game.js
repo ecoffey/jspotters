@@ -45,9 +45,9 @@ function Game(id, destroy) {
 	this.worldWidth		= 25;
 	this.worldHeight	= 21;
 	this.startingLength	= 3;
-	this.fruitGenRate	= 4;
+	this.fruitGenRate	= 6;
 	this.maxFruit		= 10;
-	this.engineInterval = 250;
+	this.engineInterval = 175;
 	this.snakeIncrease 	= 3;
 	
 	this.innerWalls 	= [];
@@ -152,11 +152,8 @@ Game.prototype.join = function(socket) {
 
 Game.prototype.killSnake = function (snake, reason){
 	snake.dead = true;
-
 	snake.socket.emit('death', this.generation);
-	snake.socket.emit('message', 'died:' + reason);
-
-	console.log('snake ' + snake.playerNumber + ' died (' + reason + ')');
+	console.log('	snake ' + snake.playerNumber + ' died (' + reason + ')');
 	
 	var liveOnes = 0,
 		winner;
@@ -217,7 +214,7 @@ Game.prototype.updateGameState = function () {
 			newSegments = 0;
 		
 		if(snake.dead === true){
-			console.log('dead snake - ' + snake.playerNumber);
+			console.log('	dead snake - ' + snake.playerNumber);
 			continue;
 		}
 		
@@ -251,9 +248,8 @@ Game.prototype.updateGameState = function () {
 		
 		//Check for fruit
 		var fruitHitIndex = this.checkHitIndex(this.fruit, snake);
-		console.log('fruitHitIndex:' + fruitHitIndex);
+		//console.log('fruitHitIndex:' + fruitHitIndex);
 		if(fruitHitIndex !== null){
-			console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
 			console.log('fruit hit!!!!!!!' + fruitHitIndex);
 			var previousTail = snake.segments[snake.segments.length - 1];
 			
@@ -268,7 +264,6 @@ Game.prototype.updateGameState = function () {
 			
 			// remove fruit from array
 			this.fruit.splice(fruitHitIndex, 1)
-			console.log('new fruit count: ' + this.fruit.length);
 		};
 		
 		// Check for interior wall collision
@@ -309,7 +304,7 @@ Game.prototype.updateGameState = function () {
 	}
 		
 	// debug : write game state
-	console.log(util.inspect(gameState));
+	console.log(util.inspect(gameState, true, null));
 		
 	// Broadcast game state to all snakes/players
 	for (var i=0; i < this.snakes.length; i++) {
@@ -323,9 +318,9 @@ Game.prototype.checkHitIndex = function(array, coord) {
 	var index = null;
 	for (var i=0; i < array.length; i++) {
 			compCoord = array[i];
-			console.log('x: ' + coord.x + ' y:' + coord.y + ', x:' + compCoord.x + ' y:' + compCoord.y);
+			//console.log('x: ' + coord.x + ' y:' + coord.y + ', x:' + compCoord.x + ' y:' + compCoord.y);
 			if((coord.x === compCoord.x) && (coord.y === compCoord.y)){
-				console.log('hit at index ' + i);
+				//console.log('hit at index ' + i);
 				index = i;
 				break;
 			}
