@@ -5,6 +5,10 @@ window.onload = function () {
 		playerNumber,
 		playerCard;
 
+	sock.on('rejoin', function() {
+		window.location = '/join';
+	});
+
 	// Server event handlers
 	sock.on('joined', function(data) {
 		var startingLocation = data.startingLocation;
@@ -266,6 +270,8 @@ window.onload = function () {
 			return this;
 		}
 	});
+	
+	sock.emit('join', window.location.pathname.substring(1));
 	
     Crafty.init(Snakes.worldWidth * Snakes.tileSize, Snakes.worldHeight * Snakes.tileSize);
     Crafty.canvas.init();
