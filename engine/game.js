@@ -1,49 +1,18 @@
-var util = require('util');
+var util = require('util'),
+	levelGen = require('./levels'),
+	levels = levelGen.getLevels();
 
 exports.createNew = function (id, destroy){
 	return new Game(id, destroy);
 };
-
-var levels = [
-	{
-		innerWalls: [
-			{ x: 5, y: 5},
-			{ x: 5, y: 6},
-			{ x: 5, y: 7},
-			{ x: 5, y: 8},
-			{ x: 5, y: 9},
-	
-			{ x: 6, y: 7},
-	
-			{ x: 7, y: 5},
-			{ x: 7, y: 6},
-			{ x: 7, y: 7},
-			{ x: 7, y: 8},
-			{ x: 7, y: 9},	
-	
-			{ x: 11, y: 5},
-			{ x: 11, y: 6},
-			{ x: 11, y: 7},
-			{ x: 11, y: 8},
-			{ x: 11, y: 9}
-		],
-		startingLocations: [
-			// If these are negative, it will be starting from bottom-right
-			{x: 3, y: 1, direction: 'right', color: 'green'},
-			{x: -5, y: -3, direction: 'left', color: '#990'},
-			{x: -3, y: 1, direction: 'down', color: '#099'},
-			{x: 3, y: -3, direction: 'up', color: '#f3f'}
-		]
-	}
-];
 
 function Game(id, destroy) {
 	this.id = id;
 	this.generation 	= 0;	
 	this.active 		= false;	
 	
-	this.worldWidth		= 25;
-	this.worldHeight	= 21;
+	this.worldWidth		= 40;
+	this.worldHeight	= 30;
 	this.startingLength	= 3;
 	this.fruitGenRate	= 6;
 	this.maxFruit		= 10;

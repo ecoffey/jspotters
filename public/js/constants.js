@@ -1,7 +1,7 @@
 var Snakes = { 
-	tileSize: 16,
-	worldWidth: 25,
-	worldHeight: 21,
+	tileSize: 12,
+	worldWidth: 40,
+	worldHeight: 30,
 	startingLength: 3,
 	movers: [],
 	innerWalls: [],
