@@ -46,9 +46,9 @@ function Game(id, destroy) {
 	this.worldHeight	= 21;
 	this.startingLength	= 3;
 	this.fruitGenRate	= 4;
-	this.maxFruit		= 5;
+	this.maxFruit		= 10;
 	this.engineInterval = 250;
-	this.snakeIncrease 	= 1;
+	this.snakeIncrease 	= 3;
 	
 	this.innerWalls 	= [];
 	this.snakes			= [];
@@ -276,11 +276,20 @@ Game.prototype.updateGameState = function () {
 			this.killSnake(snake, 'inner walls');
 		};
 		
-		//Check for other snakes
+		//Check for collisions with other snakes and segments
 		for(var x=0; x<this.snakes.length; x++){
 			var otherSnake = this.snakes[x];
-			if(snake.playerNumber !== otherSnake.playerNumber){
-				killSnake(snake, 'hit other snake');
+			
+			// Check against all segments, including your own
+			if(this.checkHit(otherSnake.segments, snake)){
+				this.killSnake(snake, 'hit segments');
+			}
+			
+			// Don't let the heads touch
+			if(snake.playerNumber !== otherSnake.playerNumber) {
+				if(snake.x === otherSnake.x && snake.y === otherSnake.y){
+					this.killSnake(snake, 'hit other snake');
+				}
 			}
 		}
 
