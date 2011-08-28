@@ -63,6 +63,11 @@ $(function () {
 
 	});
 	
+	sock.on('ready', function() {
+		$('.Waiting a, .Waiting iframe, .Waiting p').slideUp();
+		$('.StartAnyway').text('Start Now!');
+	});
+	
 	sock.on('start', function() {
 		$('.Waiting').remove();
 		

@@ -114,8 +114,14 @@ Game.prototype.join = function(socket) {
 			color: player.color
 		});
 	};
-		
+	
 	this.snakes.push(snake);
+	
+	if(this.snakes.length === 4){
+		for (var i=0; i < this.snakes.length; i++) {
+			this.snakes[i].socket.emit('ready');
+		};
+	}
 };
 
 Game.prototype.killSnake = function (snake, reason){
