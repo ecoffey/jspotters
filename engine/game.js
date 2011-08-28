@@ -155,6 +155,14 @@ Game.prototype.killSnake = function (snake, reason){
 	snake.socket.emit('death', this.generation);
 	console.log('	snake ' + snake.playerNumber + ' died (' + reason + ')');
 	
+	// single snake
+	if(this.snakes.length === 1) {
+		this.snakes[0].socket.emit('gameOver', 'nobody');
+		this.stop();
+		return;
+	}
+	
+	// figure out who the real winner is
 	var liveOnes = 0,
 		winner;
 				
@@ -162,7 +170,6 @@ Game.prototype.killSnake = function (snake, reason){
 		if(this.snakes[j].dead) continue;
 
 		liveOnes++;
-		
 		winner = this.snakes[j].playerNumber;
 	};
 	
@@ -187,8 +194,7 @@ Game.prototype.updateGameState = function () {
 	
 	// Update snake locations
 	for (var i=0; i < this.snakes.length; i++) {
-		var snake = this.snakes[i],
-			newSegments = 0;
+		var snake = this.snakes[i];
 		
 		if(snake.dead === true){
 			console.log('	dead snake - ' + snake.playerNumber);
@@ -218,16 +224,22 @@ Game.prototype.updateGameState = function () {
 				snake.x += 1;
 				break;
 		}
-
-		// check snake collisions
-		// TODO: These detections should probably be done after all movements have been applied
-		// so we can ensure all effects are correctly applied
+	} //end main snake loop
 		
+	// Collision check loop	
+	for (var i=0; i < this.snakes.length; i++) {
+		var snake = this.snakes[i],
+			newSegments = 0;
+					
+		if(snake.dead === true) {
+			continue;
+		}
+					
 		//Check for fruit
 		var fruitHitIndex = this.checkHitIndex(this.fruit, snake);
 		//console.log('fruitHitIndex:' + fruitHitIndex);
 		if(fruitHitIndex !== null){
-			console.log('fruit hit!!!!!!!' + fruitHitIndex);
+			//console.log('fruit hit!!!!!!!' + fruitHitIndex);
 			var previousTail = snake.segments[snake.segments.length - 1];
 			
 			for (var i=0; i < this.snakeIncrease; i++) {
@@ -278,7 +290,7 @@ Game.prototype.updateGameState = function () {
 			y: snake.y,
 			newSegments: newSegments
 		});
-	} //end main snake loop
+	} // snake collision loop
 		
 	// Check for fruit spawn!
 	if((this.fruit.length < this.maxFruit) && (this.generation % this.fruitGenRate === 0)) {
@@ -295,8 +307,6 @@ Game.prototype.updateGameState = function () {
 		} while(this.occupied({ x:x, y:y}));
 		
 		var newFruit = {x: x, y: y};
-		
-		// update game engine and update object
 		this.fruit.push(newFruit);
 	}
 
