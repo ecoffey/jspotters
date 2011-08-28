@@ -173,7 +173,8 @@ Game.prototype.updateGameState = function () {
 
 	// Update snake locations
 	for (var i=0; i < this.snakes.length; i++) {
-		var snake = this.snakes[i];
+		var snake = this.snakes[i],
+			newSegments = 0;
 		
 		if(snake.dead === true){
 			console.log('dead snake - ' + snake.playerNumber);
@@ -188,6 +189,7 @@ Game.prototype.updateGameState = function () {
 		
 		snake.segments.unshift(tail);
 		
+		// Advance snake head
 		switch(snake.direction) {
 			case 'up':
 				snake.y -= 1;
@@ -204,7 +206,8 @@ Game.prototype.updateGameState = function () {
 		}
 
 		// check snake collisions
-		// TODO: This should probably be done after all movements have been applied
+		// TODO: These detections should probably be done after all movements have been applied
+		// so we can ensure all effects are correctly applied
 		function killSnake(snake, reason){
 			snake.dead = true;
 			snake.socket.emit('death', this.generation);
@@ -221,7 +224,7 @@ Game.prototype.updateGameState = function () {
 					y: previousTail.y
 				});
 				
-				// TODO: Tell clients about new segments
+				newSegments++;
 			};
 			// TODO remove fruit
 		};
@@ -244,7 +247,8 @@ Game.prototype.updateGameState = function () {
 		gameState.snakes.push({
 			playerNumber:snake.playerNumber,
 			x: snake.x,
-			y: snake.y
+			y: snake.y,
+			newSegments: newSegments
 		});
 	}
 		

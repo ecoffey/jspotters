@@ -68,6 +68,19 @@ window.onload = function () {
 						x: state.x * Snakes.tileSize,
 						y: state.y * Snakes.tileSize
 					};
+					
+					if(snake.newSegments) {
+						var tail = snake._segments[snake._segments.length];
+						
+						snake._segments.push(
+							Crafty.e('SnakeSegment')
+								.SnakeSegment(snake.color)
+								.attr({
+									x: tail.x,
+									y: tail.y,
+									z: tail.z
+								}));
+					}
 															
 					break;
 				}
