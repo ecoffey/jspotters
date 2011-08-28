@@ -10,7 +10,9 @@ production it will run on port 80; otherwise it will run on port 7777.
 
 ## Linode Setup
 
-It's running on Linode under a tmux session. To restart:
+To deploy the new code run `./deploy linode -T`. `-T` skips the test step.
+Unfortunately it doesn't restart the server like it should, so it's
+running under a tmux session. To restart:
 
 * log in as root
 * run `tmux attach -d`
