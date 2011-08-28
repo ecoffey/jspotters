@@ -28,9 +28,9 @@ var levels = [
 		startingLocations: [
 			// If these are negative, it will be starting from bottom-right
 			{x: 3, y: 1, direction: 'right', color: 'green'},
-			{x: -5, y: -3, direction: 'left', color: 'yellow'},
-			{x: -3, y: 1, direction: 'down', color: 'white'},
-			{x: 3, y: -3, direction: 'up', color: 'pink'}
+			{x: -5, y: -3, direction: 'left', color: '#990'},
+			{x: -3, y: 1, direction: 'down', color: '#099'},
+			{x: 3, y: -3, direction: 'up', color: '#f3f'}
 		]
 	}
 ];
@@ -252,6 +252,10 @@ Game.prototype.occupied = function(coord){
 };
 
 Game.prototype.start = function () {
+	for (var i=0; i < this.snakes.length; i++) {
+		this.snakes[i].socket.emit('start');
+	};
+	
 	this.intervalId = setInterval(this.updateGameState.bind(this), this.engineInterval);
 	this.active = true;
 	console.log('game ' + this.id + ' started, interval id:' + this.intervalId);

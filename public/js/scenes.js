@@ -1,5 +1,6 @@
 Crafty.scene("loading", function () {
-    Crafty.e("2D, DOM, Text").attr({ w: Snakes.tileSize * Snakes.worldWidth, h: 20 })
+    Crafty.e("2D, DOM, Text")
+		.attr({ w: Snakes.tileSize * Snakes.worldWidth, h: 20 })
 		.text("Loading")
 		.css({ 
 			"text-align": "center", 
