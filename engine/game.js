@@ -28,7 +28,9 @@ var levels = [
 		startingLocations: [
 			// If these are negative, it will be starting from bottom-right
 			{x: 3, y: 1, direction: 'right', color: 'green'},
-			{x: -5, y: -3, direction: 'up', color: 'yellow'}
+			{x: -5, y: -3, direction: 'left', color: 'yellow'},
+			{x: -3, y: 1, direction: 'down', color: 'white'},
+			{x: 3, y: -3, direction: 'up', color: 'pink'}
 		]
 	}
 ];
@@ -42,7 +44,9 @@ function Game(id) {
 	this.worldHeight	= 21;
 	this.startingLength	= 3;
 	this.fruitGenRate	= 10;
-
+	this.engineInterval = 250;
+	this.snakeIncrease 	= 3;
+	
 	this.innerWalls 	= [];
 	this.snakes			= [];
 	this.fruit			= [];
@@ -108,10 +112,7 @@ Game.prototype.updateGameState = function () {
 			y = randomInt(1, this.worldHeight - 2);
 		} while(this.occupied({ x:x, y:y}));
 		
-		var newFruit = {
-			x: x,
-			y: y
-		}
+		var newFruit = {x: x, y: y};
 		
 		// update game engine and update object
 		this.fruit.push(newFruit);
@@ -124,35 +125,52 @@ Game.prototype.updateGameState = function () {
 	for (var i=0; i < this.snakes.length; i++) {
 		var snake = this.snakes[i];
 		
+		if(snake.dead === true){
+			console.log('dead snake - ' + snake.playerNumber);
+			continue;
+		}
+		
 		switch(snake.direction) {
 			case 'up':
 				snake.y -= 1;
 				break;
-
 			case 'down':
 				snake.y += 1;
 				break;
-
 			case 'left':
 				snake.x -= 1;
 				break;
-
 			case 'right':
 				snake.x += 1;
 				break;
 		}
 
 		// check snake collisions
+		function killSnake(snake, reason){
+			snake.dead = true;
+			snake.socket.emit('death', this.generation);
+			console.log('snake ' + snake.playerNumber + ' died (' + reason + ')');
+		}
+		
+		//Check for fruit
 		if(this.checkHit(this.fruit, snake)){
-			// Fruit collision! GALLAGHER
+			snake.length += this.snakeIncrease;
+			// TODO remove fruit
 		};
+		// Check for interior wall collision
 		if(this.checkHit(this.innerWalls, snake)){
-			// Wall collision!
+			killSnake(snake, 'inner walls');
 		};
+		//Check for other snakes
 		if(this.checkHit(this.snakes, snake)){
-			// Other snake collision!
-			// TODO: Other segments
+			// TODO needs to not kill itself
+			//killSnake(snake, 'hit other snake');
 		};
+		//Check for outer walls
+		if((snake.x > this.gameWidth) || (snake.x < 0)
+			|| (snake.y > this.gameHeight) || (snake.y < 0)){
+			killSnake(snake, 'outer walls');
+		}
 		
 		// Also update game state object
 		gameState.snakes.push({
@@ -197,8 +215,7 @@ Game.prototype.occupied = function(coord){
 };
 
 Game.prototype.start = function () {
-	// Create level
-	this.intervalId = setInterval(this.updateGameState.bind(this), 250);
+	this.intervalId = setInterval(this.updateGameState.bind(this), this.engineInterval);
 	this.active = true;
 	console.log('game ' + this.id + ' started, interval id:' + this.intervalId);
 };
