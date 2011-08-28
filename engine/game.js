@@ -292,7 +292,7 @@ Game.prototype.updateGameState = function () {
 		
 	// Broadcast game state to all snakes/players
 	for (var i=0; i < this.snakes.length; i++) {
-		this.snakes[i].socket.volatile.emit('gameState', gameState);
+		this.snakes[i].socket.emit('gameState', gameState);
 	};
 };
 

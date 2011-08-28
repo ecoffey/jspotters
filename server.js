@@ -43,7 +43,6 @@ server.get('/join', function(req, res) {
 });
 
 server.get('/:gameId', function(req, res) {
-	io.of('/' + req.params.gameId).on('connection', onConnection);
 	res.sendfile('views/game.html');
 });
 
@@ -77,10 +76,9 @@ var gameModule	= require('./engine/game'),
 			}
 		};
 	};
-
-//io.sockets.on('connection', onConnection);
+	
 // once the client has connected
-function onConnection(sock) {
+io.sockets.on('connection', function(sock) {
 	console.log('client connected');
 
 	sock.on('join', function(gameId) {
@@ -101,4 +99,4 @@ function onConnection(sock) {
 		
 		sock.emit('rejoin');
 	});
-}
+});
