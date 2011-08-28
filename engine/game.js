@@ -26,8 +26,9 @@ var levels = [
 			{ x: 11, y: 9}
 		],
 		startingLocations: [
-			{x: 3, y: 1},
-			{x: -5, y: -3}
+			// If these are negative, it will be starting from bottom-right
+			{x: 3, y: 1, direction: 'right', color: 'green'},
+			{x: -5, y: -3, direction: 'up', color: 'yellow'}
 		]
 	}
 ];
@@ -40,7 +41,7 @@ function Game(id) {
 	this.worldWidth		= 25;
 	this.worldHeight	= 21;
 	this.startingLength	= 3;
-	this.fruitGenRate	= 30;
+	this.fruitGenRate	= 10;
 
 	this.innerWalls 	= [];
 	this.snakes			= [];
@@ -55,13 +56,13 @@ function Game(id) {
 
 Game.prototype.join = function(socket) {
 	var playerNumber = this.snakes.length + 1,
-		startingLocation = this.level.startingLocations[playerNumber],
+		startingLocation = this.level.startingLocations[playerNumber - 1],
 		snake = { 
 			x: (startingLocation.x > -1 ? startingLocation.x : this.worldWidth + startingLocation.x), 
 			y: (startingLocation.y > -1 ? startingLocation.y : this.worldHeight + startingLocation.y),
 			length: this.startingLength,
-			direction: 'right',
-			color: 'green',
+			direction: startingLocation.direction,
+			color: startingLocation.color,
 			playerNumber: playerNumber,
 			socket: socket
 		};
