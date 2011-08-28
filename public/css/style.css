@@ -257,6 +257,21 @@ button.punch {
     margin-top: 4px;
 }
 
+#GameOver {
+	position: absolute;
+	top: 232px;
+	left: 200px;
+	right: 200px;
+	z-index: 9999;
+	font-size: 20px;
+	text-align: center;
+	background: White;
+	color: Black;
+	border: solid thin black;
+}
+#GameOver .Body {
+	border: solid 16px blue;
+}
 
 
 /* =============================================================================

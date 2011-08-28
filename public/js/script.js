@@ -1,4 +1,4 @@
-window.onload = function () {
+$(function () {
 	var sock = io.connect(),
 		snakes = [],
 		fruits = [],
@@ -6,7 +6,7 @@ window.onload = function () {
 		playerCard;
 
 	sock.on('message', function(msg) {
-		alert(msg);
+		console.log(msg);
 	});
 	
 	sock.on('rejoin', function() {
@@ -42,6 +42,8 @@ window.onload = function () {
 				"color"	: data.color,
 				"background-color": "white" 
 			});
+
+		$('#game-state').append("<p><span>Player " + playerNumber + " </span>Length <span id='player-" + playerNumber + "-length'>" + Snakes.startingLength + "</span></p>");
 	});
 	
 	sock.on('newPlayer', function(player) {
@@ -55,12 +57,18 @@ window.onload = function () {
 				playerNumber: player.playerNumber
 			})
 			.Snake(Snakes.startingLength, player.color));
+
+		var playerNumber = player.playerNumber;
+		$('#game-state').append("<p><span>Player " + playerNumber + " </span>Length <span id='player-" + playerNumber + "-length'>" + Snakes.startingLength + "</span></p>");
+
 	});
 	
 	sock.on('start', function() {
 		$('.Waiting').remove();
 		
 		playerCard.destroy();
+
+		$('#game-state').show();
 	});
 	
 	sock.on('gameState', function(gameState) {
@@ -70,6 +78,9 @@ window.onload = function () {
 			
 			for (var j=0; j < snakes.length; j++) {
 				var snake = snakes[j];
+
+				var playerLengthId = '#player-' + snake.playerNumber + '-length';
+				$(playerLengthId).text(snake._segments.length + 1);
 				
 				if(state.playerNumber === snake.playerNumber) {
 					snake.newLocation = {
@@ -91,6 +102,7 @@ window.onload = function () {
 									}));
 						};
 					}
+
 															
 					break;
 				}
@@ -115,7 +127,8 @@ window.onload = function () {
 	});
 	
 	sock.on('gameOver', function(playerWins) {
-		console.log('Player ' + playerWins + ' wins!');
+		$('.WinsMessage').text('Player ' + playerWins + ' wins!');
+		$('#GameOver').removeClass('hidden');
 	});
 	
 	
@@ -294,7 +307,11 @@ window.onload = function () {
 	$('.StartAnyway').click(function() {
 		sock.emit('start');
 	});
+	
+	$('.PlayAgain').click(function() {
+		window.location = '/join';
+	});
 
 	$('#stage-wrapper').prepend($('#cr-stage'));
 	$('#stage-wrapper').append('<div class="clear">');
-};
+});
