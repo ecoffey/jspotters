@@ -41,15 +41,10 @@ var game = gameModule.createNew(1);
 io.sockets.on('connection', function(sock) {
 	console.log('client connected');
 
+	// add new player
 	game.join(sock);
 	
-	// start the game!
-	game.start();
-	
-	//setTimeout(function() { game.stop(); }, 3000);
+	// start game if not
+	if(!game.active) 
+		game.start();
 });
-
-
-
-
-

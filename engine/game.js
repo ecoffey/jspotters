@@ -26,51 +26,63 @@ var levels = [
 			{ x: 11, y: 9}
 		],
 		startingLocations: [
-			{x: 3, y: 1},
-			{x: -5, y: -3}
+			// If these are negative, it will be starting from bottom-right
+			{x: 3, y: 1, direction: 'right', color: 'green'},
+			{x: -5, y: -3, direction: 'up', color: 'yellow'}
 		]
 	}
 ];
 
-
 function Game(id) {
 	this.id = id;
-
+	this.generation 	= 0;	
+	this.active 		= false;	
+	
 	this.worldWidth		= 25;
 	this.worldHeight	= 21;
 	this.startingLength	= 3;
-	this.fruitGenRate	= 3;
-	this.generation 	= 0;
+	this.fruitGenRate	= 10;
+
 	this.innerWalls 	= [];
-	
 	this.snakes			= [];
 	this.fruit			= [];
 	
 	//TODO: select or random
 	this.level = levels[0];
+	this.innerWalls = this.level.innerWalls;
+	
 	console.log('game ' + this.id + 'created');
 };
 
 Game.prototype.join = function(socket) {
 	var playerNumber = this.snakes.length + 1,
-		startingLocation = this.level.startingLocations[playerNumber],
+		startingLocation = this.level.startingLocations[playerNumber - 1],
 		snake = { 
-			x: startingLocation.x >= 0 ? startingLocation.x : this.worldWidth + startingLocation.x, 
-			y: startingLocation.y >= 0 ? startingLocation.y : this.worldHeight + startingLocation.y,
+			x: (startingLocation.x > -1 ? startingLocation.x : this.worldWidth + startingLocation.x), 
+			y: (startingLocation.y > -1 ? startingLocation.y : this.worldHeight + startingLocation.y),
 			length: this.startingLength,
-			direction: 'right',
-			color: 'green',
+			direction: startingLocation.direction,
+			color: startingLocation.color,
 			playerNumber: playerNumber,
 			socket: socket
 		};
 	
 	this.snakes.push(snake);
 	
+	console.log('new player ' + playerNumber + ' ' + snake);
+	
 	socket.on('direction', function(dir) {
 		snake.direction = dir;
 	});
 	
-	socket.emit('joined', { playerNumber: playerNumber });
+	socket.emit('joined', { 
+		playerNumber: playerNumber,
+		startingLocation: {
+			x: snake.x, 
+			y: snake.y
+		},
+		innerWalls: this.innerWalls
+	});
 };
 
 Game.prototype.updateGameState = function () {
@@ -85,21 +97,6 @@ Game.prototype.updateGameState = function () {
 	// Check for fruit spawn!
 	if(this.generation % this.fruitGenRate === 0) {
 		var x, y;
-		var conflict = function(coord) {
-			//var compCoord,
-			//	arrays = [this.innerWalls, this.fruit, this.snakes];
-			
-			//for (var a=0; a < arrays.length; a++) {
-			//	for (var i=0; i < arrays[a].length; i++) {
-			//		compCoord = arrays[a][i];
-
-			//		if(coord.x === compCoord.x && coord.y === compCoord.y)
-			//			return true;
-			//	};
-			//};
-			
-			return false;
-		};
 		
 		function randomInt(from, to) {
 			return Math.floor(Math.random() * (to - from + 1) + from);
@@ -109,9 +106,7 @@ Game.prototype.updateGameState = function () {
 			// zero-based index means '0' is left wall, 'x-2' is right wall
 			x = randomInt(1, this.worldWidth - 2);
 			y = randomInt(1, this.worldHeight - 2);
-		} while(conflict({ x:x, y:y}));
-		
-		console.log('new fruit x y : ' + x  + ' ' + y);
+		} while(this.occupied({ x:x, y:y}));
 		
 		var newFruit = {
 			x: x,
@@ -146,33 +141,72 @@ Game.prototype.updateGameState = function () {
 				snake.x += 1;
 				break;
 		}
+
+		// check snake collisions
+		if(this.checkHit(this.fruit, snake)){
+			// Fruit collision! GALLAGHER
+		};
+		if(this.checkHit(this.innerWalls, snake)){
+			// Wall collision!
+		};
+		if(this.checkHit(this.snakes, snake)){
+			// Other snake collision!
+			// TODO: Other segments
+		};
 		
-		// Also update game update object
+		// Also update game state object
 		gameState.snakes.push({
 			playerNumber:snake.playerNumber,
 			x: snake.x,
 			y: snake.y
 		});
 	}
-	
+		
 	// Broadcast game state to all snakes/players
 	for (var i=0; i < this.snakes.length; i++) {
 		this.snakes[i].socket.emit('gameState', gameState);
 	};
 };
 
+Game.prototype.checkHit = function(array, coord) {
+	var compCoord;
+	
+	for (var i=0; i < array.length; i++) {
+			compCoord = array[i];
+
+			if(coord.x === compCoord.x && coord.y === compCoord.y)
+				return true;
+		};
+	return false;
+};
+
+Game.prototype.occupied = function(coord){
+	var compCoord,
+		arrays = [this.innerWalls, this.fruit, this.snakes];
+
+	for (var a=0; a < arrays.length; a++) {
+		for (var i=0; i < arrays[a].length; i++) {
+			compCoord = arrays[a][i];
+
+			if(coord.x === compCoord.x && coord.y === compCoord.y)
+				return true;
+		};
+	};
+			
+	return false;
+};
+
 Game.prototype.start = function () {
 	// Create level
-	this.innerWalls = this.level.innerWalls;
 	this.intervalId = setInterval(this.updateGameState.bind(this), 250);
-	
+	this.active = true;
 	console.log('game ' + this.id + ' started, interval id:' + this.intervalId);
 };
 
 Game.prototype.stop = function (){
 	if(this.intervalId) {
 		console.log('game stopped');
-		
 		clearTimeout(this.intervalId);	
+		this.active = false;
 	}
 };
