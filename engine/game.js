@@ -114,6 +114,7 @@ Game.prototype.join = function(socket) {
 
 Game.prototype.updateGameState = function () {
 	this.generation++;
+	console.log('---------------------------------------------------------------');
 	console.log('game state update ' + this.generation);
 
 	var gameState = {
@@ -172,6 +173,7 @@ Game.prototype.updateGameState = function () {
 		function killSnake(snake, reason){
 			snake.dead = true;
 			snake.socket.emit('death', this.generation);
+			snake.socket.emit('message', 'died:' + reason);
 			console.log('snake ' + snake.playerNumber + ' died (' + reason + ')');
 		}
 		
@@ -180,15 +182,20 @@ Game.prototype.updateGameState = function () {
 			snake.length += this.snakeIncrease;
 			// TODO remove fruit
 		};
+		
 		// Check for interior wall collision
 		if(this.checkHit(this.innerWalls, snake)){
 			killSnake(snake, 'inner walls');
 		};
+		
 		//Check for other snakes
-		if(this.checkHit(this.snakes, snake)){
-			// TODO needs to not kill itself
-			//killSnake(snake, 'hit other snake');
-		};
+		for(var x=0; x<this.snakes.length; x++){
+			var otherSnake = this.snakes[x];
+			if(snake.playerNumber !== otherSnake.playerNumber){
+				killSnake(snake, 'hit other snake');
+			}
+		}
+	
 		//Check for outer walls
 		if((snake.x > this.gameWidth) || (snake.x < 0)
 			|| (snake.y > this.gameHeight) || (snake.y < 0)){

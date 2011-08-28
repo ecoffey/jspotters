@@ -4,6 +4,10 @@ window.onload = function () {
 		fruits = [],
 		playerNumber;
 
+	sock.on('message', function(msg) {
+		alert(msg);
+	});
+	
 	// Server event handlers
 	sock.on('joined', function(data) {
 		var startingLocation = data.startingLocation;
