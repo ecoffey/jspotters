@@ -20,7 +20,7 @@ function range(start, end) {
 	return arr;
 };
 
-// First Level
+// First Level: The Cross
 levels.push(
 	{
 		innerWalls: 
@@ -58,7 +58,7 @@ levels.push(
 		]
 	});
 
-// Second Level
+// Second Level: Kinda like teeth?
 levels.push(
 	{
 		innerWalls: 
@@ -94,7 +94,7 @@ levels.push(
 		]
 	});
 
-// Third Level
+// Third Level: SSSS AAAA FFFF EEEE TTTT YYYY
 levels.push(
 	{
 		innerWalls:
@@ -116,9 +116,9 @@ levels.push(
 			),
 		startingLocations: [
 			// If these are negative, it will be starting from bottom-right
-			{x: 3, y: 1, direction: 'right', color: 'green'},
-			{x: -5, y: -3, direction: 'left', color: '#990'},
-			{x: -3, y: 1, direction: 'down', color: '#099'},
-			{x: 3, y: -3, direction: 'up', color: '#f3f'}
+			{x: 14, y: 18, direction: 'left', color: '#990'},
+			{x: 24, y: 10, direction: 'right', color: 'green'},
+			{x: 4, y: 3, direction: 'down', color: '#099'},
+			{x: -5, y: -4, direction: 'up', color: '#f3f'}
 		]
 	});
