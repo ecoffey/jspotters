@@ -1,4 +1,4 @@
-window.onload = function () {
+$(function () {
 	var sock = io.connect(),
 		snakes = [],
 		fruits = [],
@@ -6,7 +6,7 @@ window.onload = function () {
 		playerCard;
 
 	sock.on('message', function(msg) {
-		alert(msg);
+		console.log(msg);
 	});
 	
 	sock.on('rejoin', function() {
@@ -127,7 +127,8 @@ window.onload = function () {
 	});
 	
 	sock.on('gameOver', function(playerWins) {
-		console.log('Player ' + playerWins + ' wins!');
+		$('.WinsMessage').text('Player ' + playerWins + ' wins!');
+		$('#GameOver').removeClass('hidden');
 	});
 	
 	
@@ -306,7 +307,11 @@ window.onload = function () {
 	$('.StartAnyway').click(function() {
 		sock.emit('start');
 	});
+	
+	$('.PlayAgain').click(function() {
+		window.location = '/join';
+	});
 
 	$('#stage-wrapper').prepend($('#cr-stage'));
 	$('#stage-wrapper').append('<div class="clear">');
-};
+});
