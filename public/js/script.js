@@ -282,6 +282,10 @@ window.onload = function () {
 
 	Crafty.background("#000");
 	Crafty.scene("loading");
+
+	$('.Waiting').prepend(
+		'<p>Share this link to invite more players:' +
+		'<input type="text" value="' + window.location.href + '" /></p>');
 	
 	$('.StartAnyway').click(function() {
 		sock.emit('start');
