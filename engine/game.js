@@ -185,29 +185,6 @@ Game.prototype.updateGameState = function () {
 		fruit: []
 	};
 	
-	// Check for fruit spawn!
-	if((this.fruit.length < this.maxFruit) && (this.generation % this.fruitGenRate === 0)) {
-		var x, y;
-		
-		function randomInt(from, to) {
-			return Math.floor(Math.random() * (to - from + 1) + from);
-		};
-		
-		do {
-			// zero-based index means '0' is left wall, 'x-2' is right wall
-			x = randomInt(1, this.worldWidth - 2);
-			y = randomInt(1, this.worldHeight - 2);
-		} while(this.occupied({ x:x, y:y}));
-		
-		var newFruit = {x: x, y: y};
-		
-		// update game engine and update object
-		this.fruit.push(newFruit);
-	}
-
-	// Copy fruit information into game update
-	gameState.fruit = this.fruit;
-
 	// Update snake locations
 	for (var i=0; i < this.snakes.length; i++) {
 		var snake = this.snakes[i],
@@ -301,8 +278,31 @@ Game.prototype.updateGameState = function () {
 			y: snake.y,
 			newSegments: newSegments
 		});
-	}
+	} //end main snake loop
 		
+	// Check for fruit spawn!
+	if((this.fruit.length < this.maxFruit) && (this.generation % this.fruitGenRate === 0)) {
+		var x, y;
+		
+		function randomInt(from, to) {
+			return Math.floor(Math.random() * (to - from + 1) + from);
+		};
+		
+		do {
+			// zero-based index means '0' is left wall, 'x-2' is right wall
+			x = randomInt(1, this.worldWidth - 2);
+			y = randomInt(1, this.worldHeight - 2);
+		} while(this.occupied({ x:x, y:y}));
+		
+		var newFruit = {x: x, y: y};
+		
+		// update game engine and update object
+		this.fruit.push(newFruit);
+	}
+
+	// Copy fruit information into game update
+	gameState.fruit = this.fruit;
+	
 	// debug : write game state
 	console.log(util.inspect(gameState, true, null));
 		
