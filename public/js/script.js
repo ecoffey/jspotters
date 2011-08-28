@@ -69,17 +69,19 @@ window.onload = function () {
 						y: state.y * Snakes.tileSize
 					};
 					
-					if(snake.newSegments) {
-						var tail = snake._segments[snake._segments.length];
+					if(state.newSegments) {
+						var tail = snake._segments[snake._segments.length - 1];
 						
-						snake._segments.push(
-							Crafty.e('SnakeSegment')
-								.SnakeSegment(snake.color)
-								.attr({
-									x: tail.x,
-									y: tail.y,
-									z: tail.z
-								}));
+						for (var i=0; i < state.newSegments; i++) {
+							snake._segments.push(
+								Crafty.e('SnakeSegment')
+									.SnakeSegment(snake._color)
+									.attr({
+										x: tail.x,
+										y: tail.y,
+										z: tail.z
+									}));
+						};
 					}
 															
 					break;
@@ -229,31 +231,6 @@ window.onload = function () {
 				delete this.newLocation;
 
 				this._segments.unshift(tail);
-				this.trigger('Moved', {x: prevX, y: prevY});
-			});
-
-			this.bind('Moved', function(from) {
-				if(this.hit('solid')) {
-					// TODO: Add death rattle
-					for(var i = 0; i < this._segments.length; i++) {
-						this._segments[i].destroy();
-					}
-					
-					this.destroy();
-					
-					return;
-				}
-				
-				if(this.hit('fruit')) {
-					this._segments.push(
-						Crafty.e('SnakeSegment')
-							.SnakeSegment(color)
-							.attr({
-								x: this.x,
-								y: this.y,
-								z: this.z
-							}));
-				}
 			});
 			
 			return this;
