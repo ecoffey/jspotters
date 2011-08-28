@@ -1,5 +1,5 @@
-exports.createNew = function (id){
-	return new Game(id);
+exports.createNew = function (id, destroy){
+	return new Game(id, destroy);
 };
 
 var levels = [
@@ -33,7 +33,7 @@ var levels = [
 	}
 ];
 
-function Game(id) {
+function Game(id, destroy) {
 	this.id = id;
 	this.generation 	= 0;	
 	this.active 		= false;	
@@ -51,6 +51,8 @@ function Game(id) {
 	this.level = levels[0];
 	this.innerWalls = this.level.innerWalls;
 	
+	this.destroy = destroy;
+	
 	console.log('game ' + this.id + 'created');
 };
 
@@ -67,8 +69,22 @@ Game.prototype.join = function(socket) {
 			socket: socket
 		};
 	
+	console.log(this.id + ': new player ' + playerNumber + ' ' + snake);
 	
-	console.log('new player ' + playerNumber + ' ' + snake);
+	socket.on('disconnect', function() {
+		console.log('disconnect ' + playerNumber);
+		
+		for (var i=0; i < this.snakes.length; i++) {
+			if(this.snakes[i].playerNumber === playerNumber) {
+				this.snakes.slice(i, i+1);
+				break;
+			}
+		};
+		
+		if(this.snakes.length === 0) {
+			this.stop();
+		}
+	}.bind(this));
 	
 	socket.on('direction', function(dir) {
 		snake.direction = dir;
@@ -110,7 +126,7 @@ Game.prototype.join = function(socket) {
 
 Game.prototype.updateGameState = function () {
 	this.generation++;
-	console.log('game state update ' + this.generation);
+	// console.log('game state update ' + this.generation);
 
 	var gameState = {
 		snakes: [],
@@ -232,4 +248,6 @@ Game.prototype.stop = function (){
 		clearTimeout(this.intervalId);	
 		this.active = false;
 	}
+	
+	this.destroy();
 };

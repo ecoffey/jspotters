@@ -35,7 +35,9 @@ console.log('Started server on ' + server.address().port);
 
 // initialize
 var gameModule = require('./engine/game');
-var game = gameModule.createNew(1);
+var game = gameModule.createNew(1, function() {
+	// TODO: Remove game
+});
 
 // once the client has connected
 io.sockets.on('connection', function(sock) {
