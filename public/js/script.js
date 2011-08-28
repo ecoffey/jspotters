@@ -273,8 +273,8 @@ window.onload = function () {
 	
 	sock.emit('join', window.location.pathname.substring(1));
 	
-    Crafty.init(Snakes.worldWidth * Snakes.tileSize, Snakes.worldHeight * Snakes.tileSize);
-    Crafty.canvas.init();
+	Crafty.init(Snakes.worldWidth * Snakes.tileSize, Snakes.worldHeight * Snakes.tileSize);
+	Crafty.canvas.init();
 
 	Crafty.background("#000");
 	Crafty.scene("loading");
@@ -286,4 +286,7 @@ window.onload = function () {
 	$('.StartAnyway').click(function() {
 		sock.emit('start');
 	});
+
+	$('#stage-wrapper').prepend($('#cr-stage'));
+	$('#stage-wrapper').append('<div class="clear">');
 };
