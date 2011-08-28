@@ -37,8 +37,8 @@ $(function () {
 			.text("Player " + playerNumber)
 			.css({ 
 				"text-align": "center", 
-				"top"	: (startingLocation.y * Snakes.tileSize - 15) + 'px',
-				"left"	: (startingLocation.x * Snakes.tileSize - 50) + 'px',
+				"top"	: (startingLocation.y * Snakes.tileSize - 25) + 'px',
+				"left"	: (startingLocation.x * Snakes.tileSize - 45) + 'px',
 				"color"	: data.color,
 				"background-color": "white" 
 			});
@@ -61,6 +61,11 @@ $(function () {
 		var playerNumber = player.playerNumber;
 		$('#game-state').append("<p><span>Player " + playerNumber + " </span>Length <span id='player-" + playerNumber + "-length'>" + Snakes.startingLength + "</span></p>");
 
+	});
+	
+	sock.on('ready', function() {
+		$('.Waiting a, .Waiting iframe, .Waiting p').slideUp();
+		$('.StartAnyway').text('Start Now!');
 	});
 	
 	sock.on('start', function() {
