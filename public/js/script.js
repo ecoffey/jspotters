@@ -2,7 +2,8 @@ window.onload = function () {
 	var sock = io.connect(),
 		snakes = [],
 		fruits = [],
-		playerNumber;
+		playerNumber,
+		playerCard;
 
 	sock.on('message', function(msg) {
 		alert(msg);
@@ -26,6 +27,17 @@ window.onload = function () {
 				playerNumber: playerNumber 
 			})
 			.Player(Snakes.startingLength, data.color, { 38: 'up', 40: 'down', 39: 'right', 37: 'left'}));
+		
+	    playerCard = Crafty.e("2D, DOM, Text")
+			.attr({ w: 100, h: 20 })
+			.text("Player " + playerNumber)
+			.css({ 
+				"text-align": "center", 
+				"top"	: (startingLocation.y * Snakes.tileSize - 15) + 'px',
+				"left"	: (startingLocation.x * Snakes.tileSize - 50) + 'px',
+				"color"	: data.color,
+				"background-color": "white" 
+			});
 	});
 	
 	sock.on('newPlayer', function(player) {
@@ -39,8 +51,12 @@ window.onload = function () {
 				playerNumber: player.playerNumber
 			})
 			.Snake(Snakes.startingLength, player.color));
+	});
+	
+	sock.on('start', function() {
+		$('.Waiting').remove();
 		
-		console.log(snakes);
+		playerCard.destroy();
 	});
 	
 	sock.on('gameState', function(gameState) {
@@ -56,6 +72,21 @@ window.onload = function () {
 						x: state.x * Snakes.tileSize,
 						y: state.y * Snakes.tileSize
 					};
+					
+					if(state.newSegments) {
+						var tail = snake._segments[snake._segments.length - 1];
+						
+						for (var i=0; i < state.newSegments; i++) {
+							snake._segments.push(
+								Crafty.e('SnakeSegment')
+									.SnakeSegment(snake._color)
+									.attr({
+										x: tail.x,
+										y: tail.y,
+										z: tail.z
+									}));
+						};
+					}
 															
 					break;
 				}
@@ -138,7 +169,7 @@ window.onload = function () {
 					var target = Snakes.fruit[i];
 					
 					if(target.x === this.x && target.y === this.y)
-						Snakes.fruit.slice(i, i+1);
+						Snakes.fruit.splice(i, 1);
 				};
 				
 				this.destroy();
@@ -204,31 +235,6 @@ window.onload = function () {
 				delete this.newLocation;
 
 				this._segments.unshift(tail);
-				this.trigger('Moved', {x: prevX, y: prevY});
-			});
-
-			this.bind('Moved', function(from) {
-				if(this.hit('solid')) {
-					// TODO: Add death rattle
-					for(var i = 0; i < this._segments.length; i++) {
-						this._segments[i].destroy();
-					}
-					
-					this.destroy();
-					
-					return;
-				}
-				
-				if(this.hit('fruit')) {
-					this._segments.push(
-						Crafty.e('SnakeSegment')
-							.SnakeSegment(color)
-							.attr({
-								x: this.x,
-								y: this.y,
-								z: this.z
-							}));
-				}
 			});
 			
 			return this;
@@ -270,4 +276,8 @@ window.onload = function () {
 
 	Crafty.background("#000");
 	Crafty.scene("loading");
+	
+	$('.StartAnyway').click(function() {
+		sock.emit('start');
+	});
 };

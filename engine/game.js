@@ -1,5 +1,5 @@
-exports.createNew = function (id){
-	return new Game(id);
+exports.createNew = function (id, destroy){
+	return new Game(id, destroy);
 };
 
 var levels = [
@@ -28,14 +28,14 @@ var levels = [
 		startingLocations: [
 			// If these are negative, it will be starting from bottom-right
 			{x: 3, y: 1, direction: 'right', color: 'green'},
-			{x: -5, y: -3, direction: 'left', color: 'yellow'},
-			{x: -3, y: 1, direction: 'down', color: 'white'},
-			{x: 3, y: -3, direction: 'up', color: 'pink'}
+			{x: -5, y: -3, direction: 'left', color: '#990'},
+			{x: -3, y: 1, direction: 'down', color: '#099'},
+			{x: 3, y: -3, direction: 'up', color: '#f3f'}
 		]
 	}
 ];
 
-function Game(id) {
+function Game(id, destroy) {
 	this.id = id;
 	this.generation 	= 0;	
 	this.active 		= false;	
@@ -45,7 +45,7 @@ function Game(id) {
 	this.startingLength	= 3;
 	this.fruitGenRate	= 10;
 	this.engineInterval = 250;
-	this.snakeIncrease 	= 3;
+	this.snakeIncrease 	= 1;
 	
 	this.innerWalls 	= [];
 	this.snakes			= [];
@@ -54,6 +54,8 @@ function Game(id) {
 	//TODO: select or random
 	this.level = levels[0];
 	this.innerWalls = this.level.innerWalls;
+	
+	this.destroy = destroy;
 	
 	console.log('game ' + this.id + 'created');
 };
@@ -64,15 +66,40 @@ Game.prototype.join = function(socket) {
 		snake = { 
 			x: (startingLocation.x > -1 ? startingLocation.x : this.worldWidth + startingLocation.x), 
 			y: (startingLocation.y > -1 ? startingLocation.y : this.worldHeight + startingLocation.y),
-			length: this.startingLength,
+			segments: [],
 			direction: startingLocation.direction,
 			color: startingLocation.color,
 			playerNumber: playerNumber,
 			socket: socket
 		};
 	
+	console.log(this.id + ': new player ' + playerNumber + ' ' + snake);
 	
-	console.log('new player ' + playerNumber + ' ' + snake);
+	for (var i=0; i < this.startingLength; i++) {
+		snake.segments.push({
+			x: snake.x,
+			y: snake.y
+		});
+	};
+	
+	socket.on('start', function() {
+		if(this.active) return;
+		
+		this.start();
+	}.bind(this));
+	
+	socket.on('disconnect', function() {
+		for (var i=0; i < this.snakes.length; i++) {
+			if(this.snakes[i].playerNumber === playerNumber) {
+				this.snakes.splice(i, 1);
+				break;
+			}
+		};
+		
+		if(this.snakes.length === 0) {
+			this.stop();
+		}
+	}.bind(this));
 	
 	socket.on('direction', function(dir) {
 		snake.direction = dir;
@@ -147,13 +174,23 @@ Game.prototype.updateGameState = function () {
 
 	// Update snake locations
 	for (var i=0; i < this.snakes.length; i++) {
-		var snake = this.snakes[i];
+		var snake = this.snakes[i],
+			newSegments = 0;
 		
 		if(snake.dead === true){
 			console.log('dead snake - ' + snake.playerNumber);
 			continue;
 		}
 		
+		// Advancing snake segments
+		var tail = snake.segments.pop();
+		
+		tail.x = snake.x;
+		tail.y = snake.y;
+		
+		snake.segments.unshift(tail);
+		
+		// Advance snake head
 		switch(snake.direction) {
 			case 'up':
 				snake.y -= 1;
@@ -170,6 +207,8 @@ Game.prototype.updateGameState = function () {
 		}
 
 		// check snake collisions
+		// TODO: These detections should probably be done after all movements have been applied
+		// so we can ensure all effects are correctly applied
 		function killSnake(snake, reason){
 			snake.dead = true;
 			snake.socket.emit('death', this.generation);
@@ -179,7 +218,16 @@ Game.prototype.updateGameState = function () {
 		
 		//Check for fruit
 		if(this.checkHit(this.fruit, snake)){
-			snake.length += this.snakeIncrease;
+			var previousTail = snake.segments[snake.segments.length - 1];
+			
+			for (var i=0; i < this.snakeIncrease; i++) {
+				snake.segments.push({
+					x: previousTail.x,
+					y: previousTail.y
+				});
+				
+				newSegments++;
+			};
 			// TODO remove fruit
 		};
 		
@@ -206,7 +254,8 @@ Game.prototype.updateGameState = function () {
 		gameState.snakes.push({
 			playerNumber:snake.playerNumber,
 			x: snake.x,
-			y: snake.y
+			y: snake.y,
+			newSegments: newSegments
 		});
 	}
 		
@@ -245,6 +294,10 @@ Game.prototype.occupied = function(coord){
 };
 
 Game.prototype.start = function () {
+	for (var i=0; i < this.snakes.length; i++) {
+		this.snakes[i].socket.emit('start');
+	};
+	
 	this.intervalId = setInterval(this.updateGameState.bind(this), this.engineInterval);
 	this.active = true;
 	console.log('game ' + this.id + ' started, interval id:' + this.intervalId);
@@ -256,4 +309,6 @@ Game.prototype.stop = function (){
 		clearTimeout(this.intervalId);	
 		this.active = false;
 	}
+	
+	this.destroy();
 };
