@@ -61,27 +61,59 @@ levels.push(
 // Second Level
 levels.push(
 	{
-		innerWalls: [
-			{ x: 5, y: 5},
-			{ x: 5, y: 6},
-			{ x: 5, y: 7},
-			{ x: 5, y: 8},
-			{ x: 5, y: 9},
-	
-			{ x: 6, y: 7},
-	
-			{ x: 7, y: 5},
-			{ x: 7, y: 6},
-			{ x: 7, y: 7},
-			{ x: 7, y: 8},
-			{ x: 7, y: 9},	
-	
-			{ x: 11, y: 5},
-			{ x: 11, y: 6},
-			{ x: 11, y: 7},
-			{ x: 11, y: 8},
-			{ x: 11, y: 9}
-		],
+		innerWalls: 
+			[].concat(
+				// Top left wall
+				range({ x:14,	y: 1 }, { x: 14,	y: 5}),
+				range({ x:13,	y: 1 }, { x: 13,	y: 5}),
+
+				// Top right wall
+				range({ x:25,	y: 1 }, { x: 25,	y: 5}),
+				range({ x:26,	y: 1 }, { x: 26,	y: 5}),
+
+				// Bottom left wall
+				range({ x:14,	y: 24 }, { x: 14,	y: 29}),
+				range({ x:13,	y: 24 }, { x: 13,	y: 29}),
+
+				// Bottom right wall
+				range({ x:25,	y: 24 }, { x: 25,	y: 29}),
+				range({ x:26,	y: 24 }, { x: 26,	y: 29}),
+
+				// Center block
+				range({ x:13,	y: 13 }, { x: 26,	y: 13}),
+				range({ x:13,	y: 14 }, { x: 26,	y: 14}),
+				range({ x:13,	y: 15 }, { x: 26,	y: 15}),
+				range({ x:13,	y: 16 }, { x: 26,	y: 16})
+			),
+		startingLocations: [
+			// If these are negative, it will be starting from bottom-right
+			{x: 14, y: 9, direction: 'left', color: 'green'},
+			{x: 25, y: 20, direction: 'right', color: '#990'},
+			{x: 25, y: 9, direction: 'right', color: '#099'},
+			{x: 14, y: 20, direction: 'left', color: '#f3f'}
+		]
+	});
+
+// Third Level
+levels.push(
+	{
+		innerWalls:
+			[].concat(
+				// Top
+				range({ x:10,	y: 6 }, { x: 29,	y: 6}),
+
+				// Left
+				range({ x:9,	y: 7 }, { x: 9,		y: 13}),
+
+				// Middle
+				range({ x:10,	y: 14 }, { x: 29,	y: 14}),
+
+				// Right
+				range({ x:30,	y: 15 }, { x: 30,	y: 21}),
+
+				// Bottom
+				range({ x:9,	y: 22 }, { x: 29,	y: 22})
+			),
 		startingLocations: [
 			// If these are negative, it will be starting from bottom-right
 			{x: 3, y: 1, direction: 'right', color: 'green'},

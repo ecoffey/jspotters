@@ -23,8 +23,7 @@ function Game(id, destroy) {
 	this.snakes			= [];
 	this.fruit			= [];
 	
-	//TODO: select or random
-	this.level = levels[0];
+	this.level = levels[Math.floor(Math.random() * 3)];
 	this.innerWalls = this.level.innerWalls;
 	
 	this.destroy = destroy;
