@@ -1,5 +1,5 @@
 $(function () {
-	var sock = io.connect(),
+	var sock = io.connect(window.location.href),
 		snakes = [],
 		fruits = [],
 		playerNumber,
