@@ -127,7 +127,8 @@ $(function () {
 	});
 	
 	sock.on('gameOver', function(playerWins) {
-		$('.WinsMessage').text('Player ' + playerWins + ' wins!');
+		var message = playerWins === playerNumber ? 'You win!' : 'Player ' + playerWins + ' wins!';
+		$('.WinsMessage').text(message);
 		$('#GameOver').removeClass('hidden');
 	});
 	
