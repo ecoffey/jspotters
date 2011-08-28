@@ -114,6 +114,10 @@ window.onload = function () {
 		};
 	});
 	
+	sock.on('gameOver', function(playerWins) {
+		console.log('Player ' + playerWins + ' wins!');
+	});
+	
 	
 	// Crafty Components
 	Crafty.c('wall', {

@@ -150,6 +150,34 @@ Game.prototype.join = function(socket) {
 	this.snakes.push(snake);
 };
 
+Game.prototype.killSnake = function (snake, reason){
+	snake.dead = true;
+
+	snake.socket.emit('death', this.generation);
+	snake.socket.emit('message', 'died:' + reason);
+
+	console.log('snake ' + snake.playerNumber + ' died (' + reason + ')');
+	
+	var liveOnes = 0,
+		winner;
+				
+	for (var j=0; j < this.snakes.length; j++) {
+		if(this.snakes[j].dead) continue;
+
+		liveOnes++;
+		
+		winner = this.snakes[j].playerNumber;
+	};
+	
+	if(liveOnes === 1) {
+		for (var j=0; j < this.snakes.length; j++) {
+			this.snakes[j].socket.emit('gameOver', winner);
+		}				
+		
+		this.stop();
+	}
+};
+
 Game.prototype.updateGameState = function () {
 	this.generation++;
 	console.log('---------------------------------------------------------------');
@@ -220,12 +248,6 @@ Game.prototype.updateGameState = function () {
 		// check snake collisions
 		// TODO: These detections should probably be done after all movements have been applied
 		// so we can ensure all effects are correctly applied
-		function killSnake(snake, reason){
-			snake.dead = true;
-			snake.socket.emit('death', this.generation);
-			snake.socket.emit('message', 'died:' + reason);
-			console.log('snake ' + snake.playerNumber + ' died (' + reason + ')');
-		}
 		
 		//Check for fruit
 		var fruitHitIndex = this.checkHitIndex(this.fruit, snake);
@@ -251,7 +273,7 @@ Game.prototype.updateGameState = function () {
 		
 		// Check for interior wall collision
 		if(this.checkHit(this.innerWalls, snake)){
-			killSnake(snake, 'inner walls');
+			this.killSnake(snake, 'inner walls');
 		};
 		
 		//Check for other snakes
@@ -261,11 +283,11 @@ Game.prototype.updateGameState = function () {
 				killSnake(snake, 'hit other snake');
 			}
 		}
-	
+
 		//Check for outer walls
-		if((snake.x > this.gameWidth) || (snake.x < 0)
-			|| (snake.y > this.gameHeight) || (snake.y < 0)){
-			killSnake(snake, 'outer walls');
+		if((snake.x > this.worldWidth - 2) || (snake.x < 1)
+			|| (snake.y > this.worldHeight - 2) || (snake.y < 1)){
+			this.killSnake(snake, 'outer walls');
 		}
 		
 		// Also update game state object
@@ -344,9 +366,11 @@ Game.prototype.start = function () {
 Game.prototype.stop = function (){
 	if(this.intervalId) {
 		console.log('game stopped');
-		clearTimeout(this.intervalId);	
-		this.active = false;
-	}
+		clearTimeout(this.intervalId);
+	}	
 	
+	// Remove from the list, then deactivate
 	this.destroy();
+
+	this.active = false;
 };
