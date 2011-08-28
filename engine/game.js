@@ -67,7 +67,6 @@ Game.prototype.join = function(socket) {
 			socket: socket
 		};
 	
-	this.snakes.push(snake);
 	
 	console.log('new player ' + playerNumber + ' ' + snake);
 	
@@ -75,14 +74,38 @@ Game.prototype.join = function(socket) {
 		snake.direction = dir;
 	});
 	
-	socket.emit('joined', { 
+	var player = {
 		playerNumber: playerNumber,
 		startingLocation: {
 			x: snake.x, 
 			y: snake.y
 		},
-		innerWalls: this.innerWalls
-	});
+		color: startingLocation.color
+	};
+	
+	// All other sockets get newPlayer
+	for (var i=0; i < this.snakes.length; i++) {
+		this.snakes[i].socket.emit('newPlayer', player);
+	};
+	
+	player.innerWalls = this.innerWalls;
+	
+	socket.emit('joined', player);
+
+	for (var i=0; i < this.snakes.length; i++) {
+		player = this.snakes[i];
+		
+		socket.emit('newPlayer', {
+			playerNumber: player.playerNumber,
+			startingLocation: {
+				x: player.x, 
+				y: player.y
+			},
+			color: player.color
+		});
+	};
+		
+	this.snakes.push(snake);
 };
 
 Game.prototype.updateGameState = function () {
