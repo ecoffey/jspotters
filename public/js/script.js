@@ -19,9 +19,24 @@ window.onload = function () {
 				x: startingLocation.x * Snakes.tileSize,
 				y: startingLocation.y * Snakes.tileSize,
 				z: 1,
-				playerNumber: playerNumber
+				playerNumber: playerNumber 
 			})
-			.Player(Snakes.startingLength, 'green', { 38: 'up', 40: 'down', 39: 'right', 37: 'left'}));
+			.Player(Snakes.startingLength, data.color, { 38: 'up', 40: 'down', 39: 'right', 37: 'left'}));
+	});
+	
+	sock.on('newPlayer', function(player) {
+		var startingLocation = player.startingLocation;
+		
+		snakes.push(Crafty.e('Snake')
+			.attr({
+				x: startingLocation.x * Snakes.tileSize,
+				y: startingLocation.y * Snakes.tileSize,
+				z: 1,
+				playerNumber: player.playerNumber
+			})
+			.Snake(Snakes.startingLength, player.color));
+		
+		console.log(snakes);
 	});
 	
 	sock.on('gameState', function(gameState) {
@@ -36,8 +51,8 @@ window.onload = function () {
 					snake.newLocation = {
 						x: state.x * Snakes.tileSize,
 						y: state.y * Snakes.tileSize
-					}
-										
+					};
+															
 					break;
 				}
 			};
@@ -189,28 +204,28 @@ window.onload = function () {
 			});
 
 			this.bind('Moved', function(from) {
-					if(this.hit('solid')) {
-						// TODO: Add death rattle
-						for(var i = 0; i < this._segments.length; i++) {
-							this._segments[i].destroy();
-						}
-						
-						this.destroy();
-						
-						return;
+				if(this.hit('solid')) {
+					// TODO: Add death rattle
+					for(var i = 0; i < this._segments.length; i++) {
+						this._segments[i].destroy();
 					}
 					
-					if(this.hit('fruit')) {
-						this._segments.push(
-							Crafty.e('SnakeSegment')
-								.SnakeSegment(color)
-								.attr({
-									x: this.x,
-									y: this.y,
-									z: this.z
-								}));
-					}
-				});
+					this.destroy();
+					
+					return;
+				}
+				
+				if(this.hit('fruit')) {
+					this._segments.push(
+						Crafty.e('SnakeSegment')
+							.SnakeSegment(color)
+							.attr({
+								x: this.x,
+								y: this.y,
+								z: this.z
+							}));
+				}
+			});
 			
 			return this;
 		}
