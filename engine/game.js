@@ -272,7 +272,7 @@ Game.prototype.updateGameState = function () {
 		for(var x=0; x<this.snakes.length; x++){
 			var otherSnake = this.snakes[x];
 			if(snake.playerNumber !== otherSnake.playerNumber){
-				killSnake(snake, 'hit other snake');
+				this.killSnake(snake, 'hit other snake');
 			}
 		}
 
