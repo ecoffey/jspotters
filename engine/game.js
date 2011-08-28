@@ -104,7 +104,15 @@ Game.prototype.join = function(socket) {
 		}
 	}.bind(this));
 	
+	// socket event: update snake direction (if !stupid)
 	socket.on('direction', function(dir) {
+		var currentDir = snake.direction;
+		if((currentDir === 'up' && dir === 'down') ||
+			(currentDir === 'down' && dir === 'up') ||
+			(currentDir === 'left' && dir === 'right') ||
+			(currentDir === 'right' && dir === 'left')) {
+			return;
+		}
 		snake.direction = dir;
 	});
 	
