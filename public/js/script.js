@@ -37,8 +37,8 @@ $(function () {
 			.text("Player " + playerNumber)
 			.css({ 
 				"text-align": "center", 
-				"top"	: (startingLocation.y * Snakes.tileSize - 15) + 'px',
-				"left"	: (startingLocation.x * Snakes.tileSize - 50) + 'px',
+				"top"	: (startingLocation.y * Snakes.tileSize - 25) + 'px',
+				"left"	: (startingLocation.x * Snakes.tileSize - 45) + 'px',
 				"color"	: data.color,
 				"background-color": "white" 
 			});

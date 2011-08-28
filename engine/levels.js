@@ -52,9 +52,9 @@ levels.push(
 		startingLocations: [
 			// If these are negative, it will be starting from bottom-right
 			{x: 3, y: 3, direction: 'right', color: 'green'},
-			{x: -3, y: -3, direction: 'left', color: '#990'},
-			{x: -3, y: 3, direction: 'down', color: '#099'},
-			{x: 3, y: -3, direction: 'up', color: '#f3f'}
+			{x: -4, y: -4, direction: 'left', color: '#990'},
+			{x: -4, y: 3, direction: 'down', color: '#099'},
+			{x: 3, y: -4, direction: 'up', color: '#f3f'}
 		]
 	});
 
