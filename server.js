@@ -11,15 +11,39 @@ var http	= require('http'),
 server.configure(function() {
 	server.use(express.static(__dirname + '/public'));
 });
-
+io.configure(function() {
+	io.set('log level', 1);
+});
 
 // Routes
 server.get('/', function(req, res) {
 	res.sendfile('views/index.html');
 });
 
+server.get('/join', function(req, res) {
+	var game;
+
+	if(games.length === 0) {
+		games.push(game = gameModule.createNew(++gameId, function() {
+			removeGame(this.id);
+		}));
+	} else {
+		var index = games.length - 1;
+		
+		if (games[index].snakes.length === 4 || games[index].active) {
+			games.push(game = gameModule.createNew(++gameId, function() {
+				removeGame(this.id);
+			}));
+		} else {
+			game = games[index];
+		}
+	}
+	
+	res.redirect('/' + game.id);
+});
+
 server.get('/:gameId', function(req, res) {
-	res.send('game #:' + req.params.gameId);
+	res.sendfile('views/game.html');
 });
 
 
@@ -55,26 +79,24 @@ var gameModule	= require('./engine/game'),
 	
 // once the client has connected
 io.sockets.on('connection', function(sock) {
-	var game;
-	
 	console.log('client connected');
 
-	if(games.length === 0) {
-		games.push(game = gameModule.createNew(++gameId, function() {
-			removeGame(this.id);
-		}));
-	} else {
-		var index = games.length - 1;
-		
-		if (games[index].snakes.length === 4) {
-			games.push(game = gameModule.createNew(++gameId, function() {
-				removeGame(this.id);
-			}));
-		} else {
-			game = games[index];
-		}
-	}
+	sock.on('join', function(gameId) {
 
-	// add new player
-	game.join(sock);	
+		for (var i=0; i < games.length; i++) {
+			var game = games[i];
+			
+			if(game.id == gameId) {
+				if(!game.active && game.snakes.length < 4) {
+					game.join(sock);
+				} else {
+					sock.emit('rejoin');
+				}
+				
+				return;
+			}
+		};
+		
+		sock.emit('rejoin');
+	});
 });

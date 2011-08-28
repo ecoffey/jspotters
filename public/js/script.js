@@ -9,6 +9,10 @@ window.onload = function () {
 		alert(msg);
 	});
 	
+	sock.on('rejoin', function() {
+		window.location = '/join';
+	});
+
 	// Server event handlers
 	sock.on('joined', function(data) {
 		var startingLocation = data.startingLocation;
@@ -164,16 +168,16 @@ window.onload = function () {
 			this.color('red')
 				.collision();
 			
-			this.onHit('Snake', function(){
-				for (var i=0; i < Snakes.fruit.length; i++) {
-					var target = Snakes.fruit[i];
+			//this.onHit('Snake', function(){
+			//	for (var i=0; i < Snakes.fruit.length; i++) {
+			//		var target = Snakes.fruit[i];
 					
-					if(target.x === this.x && target.y === this.y)
-						Snakes.fruit.splice(i, 1);
-				};
+			//		if(target.x === this.x && target.y === this.y)
+			//			Snakes.fruit.splice(i, 1);
+			//	};
 				
-				this.destroy();
-			});
+			//	this.destroy();
+			//});
 		}
 	});
 	
@@ -270,6 +274,8 @@ window.onload = function () {
 			return this;
 		}
 	});
+	
+	sock.emit('join', window.location.pathname.substring(1));
 	
     Crafty.init(Snakes.worldWidth * Snakes.tileSize, Snakes.worldHeight * Snakes.tileSize);
     Crafty.canvas.init();
