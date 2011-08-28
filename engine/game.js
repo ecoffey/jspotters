@@ -45,7 +45,7 @@ function Game(id, destroy) {
 	this.startingLength	= 3;
 	this.fruitGenRate	= 10;
 	this.engineInterval = 250;
-	this.snakeIncrease 	= 3;
+	this.snakeIncrease 	= 1;
 	
 	this.innerWalls 	= [];
 	this.snakes			= [];
@@ -66,7 +66,7 @@ Game.prototype.join = function(socket) {
 		snake = { 
 			x: (startingLocation.x > -1 ? startingLocation.x : this.worldWidth + startingLocation.x), 
 			y: (startingLocation.y > -1 ? startingLocation.y : this.worldHeight + startingLocation.y),
-			length: this.startingLength,
+			segments: [],
 			direction: startingLocation.direction,
 			color: startingLocation.color,
 			playerNumber: playerNumber,
@@ -74,6 +74,13 @@ Game.prototype.join = function(socket) {
 		};
 	
 	console.log(this.id + ': new player ' + playerNumber + ' ' + snake);
+	
+	for (var i=0; i < this.startingLength; i++) {
+		snake.segments.push({
+			x: snake.x,
+			y: snake.y
+		});
+	};
 	
 	socket.on('start', function() {
 		if(this.active) return;
@@ -134,7 +141,7 @@ Game.prototype.join = function(socket) {
 
 Game.prototype.updateGameState = function () {
 	this.generation++;
-	// console.log('game state update ' + this.generation);
+	console.log('game state update ' + this.generation);
 
 	var gameState = {
 		snakes: [],
@@ -173,6 +180,14 @@ Game.prototype.updateGameState = function () {
 			continue;
 		}
 		
+		// Advancing snake segments
+		var tail = snake.segments.pop();
+		
+		tail.x = snake.x;
+		tail.y = snake.y;
+		
+		snake.segments.unshift(tail);
+		
 		switch(snake.direction) {
 			case 'up':
 				snake.y -= 1;
@@ -189,6 +204,7 @@ Game.prototype.updateGameState = function () {
 		}
 
 		// check snake collisions
+		// TODO: This should probably be done after all movements have been applied
 		function killSnake(snake, reason){
 			snake.dead = true;
 			snake.socket.emit('death', this.generation);
@@ -197,7 +213,16 @@ Game.prototype.updateGameState = function () {
 		
 		//Check for fruit
 		if(this.checkHit(this.fruit, snake)){
-			snake.length += this.snakeIncrease;
+			var previousTail = snake.segments[snake.segments.length - 1];
+			
+			for (var i=0; i < this.snakeIncrease; i++) {
+				snake.segments.push({
+					x: previousTail.x,
+					y: previousTail.y
+				});
+				
+				// TODO: Tell clients about new segments
+			};
 			// TODO remove fruit
 		};
 		// Check for interior wall collision
